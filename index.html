@@ -69,13 +69,13 @@
   a { color: var(--c-accent); }
 
   /* HEADER */
-  .app-header { background: rgba(29, 95, 166, 0.9); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: background 0.3s; }
+  .app-header { background: rgba(29, 95, 166, 0.9); color: #fff; padding: 14px 20px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: background 0.3s; }
   html.dark .app-header { background: rgba(18, 18, 20, 0.8); border-bottom: 1px solid var(--c-border); color: #f0f0f0; }
   .app-header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
-  .app-header span { font-size: 12px; opacity: 0.75; margin-left: auto; }
+  .app-header span { font-size: 12px; opacity: 0.75; }
 
   /* STEPS NAV */
-  .steps-nav { background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 12px; }
+  .steps-nav { background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 12px; }
   .step-btn { padding: 12px 16px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-step-idle); border-bottom: 3px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; gap: 6px; }
   .step-btn.active { color: var(--c-step-active); border-bottom-color: var(--c-step-active); }
   .step-btn.done { color: var(--c-step-done); }
@@ -254,15 +254,15 @@
 </head>
 <body>
 
-<header class="app-header">
+<header class="app-header flex flex-col md:flex-row md:items-center justify-between gap-3">
   <div>
     <h1>Outil EPS — Course de Haies · DI-HAI</h1>
   </div>
-  <span>ADP 2026 · CRMEF Inezgane · BOUARGANE &nbsp;|&nbsp; Niveau 2 · 10 séances</span>
+  <span class="md:ml-auto">ADP 2026 · CRMEF Inezgane · BOUARGANE &nbsp;|&nbsp; Niveau 2 · 10 séances</span>
 </header>
 
-<nav class="steps-nav flex items-center justify-between sticky top-0 z-50 shadow-sm" id="stepsNav">
-  <div class="flex overflow-x-auto flex-1 scrollbar-hide">
+<nav class="steps-nav flex flex-col md:flex-row md:items-center justify-between sticky top-0 z-50 shadow-sm" id="stepsNav">
+  <div class="flex overflow-x-auto w-full md:flex-1 scrollbar-hide">
     <button class="step-btn active" onclick="goStep(1)" id="stepBtn1">
       <span class="step-dot">1</span> Diagnostic
     </button>
@@ -276,7 +276,8 @@
       <span class="step-dot">4</span> Planification
     </button>
   </div>
-  <div class="flex items-center pl-4 border-l border-gray-300 dark:border-gray-700 ml-2 gap-2">
+  <div class="flex items-center justify-between md:justify-end w-full md:w-auto p-2 md:p-0 md:pl-4 md:border-l border-gray-300 dark:border-gray-700 md:ml-2 gap-2 border-t md:border-t-0">
+    <span class="md:hidden text-sm font-medium text-gray-500">Thème</span>
     <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
       <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i>
     </button>
