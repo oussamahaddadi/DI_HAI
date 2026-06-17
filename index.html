@@ -75,14 +75,82 @@
   .app-header span { font-size: 12px; opacity: 0.75; }
 
   /* STEPS NAV */
-  .steps-nav { background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 12px; }
-  .step-btn { padding: 12px 16px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-step-idle); border-bottom: 3px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; gap: 6px; }
-  .step-btn.active { color: var(--c-step-active); border-bottom-color: var(--c-step-active); }
+  .steps-nav { 
+    background: var(--c-surface); 
+    border-bottom: 1px solid var(--c-border); 
+    padding: 0 16px; 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    padding-right: 12px; 
+  }
+  .step-btn { 
+    padding: 12px 16px; 
+    border: none; 
+    background: none; 
+    cursor: pointer; 
+    font-size: 13px; 
+    font-weight: 500; 
+    color: var(--c-step-idle); 
+    border-bottom: 3px solid transparent; 
+    white-space: nowrap; 
+    transition: all 0.15s; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+  }
+  .step-btn.active { 
+    color: var(--c-step-active); 
+    border-bottom-color: var(--c-step-active); 
+  }
   .step-btn.done { color: var(--c-step-done); }
   .step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .step-dot { width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; background: var(--c-step-idle); color: #fff; flex-shrink: 0; }
   .step-btn.active .step-dot { background: var(--c-step-active); }
   .step-btn.done .step-dot { background: var(--c-step-done); }
+
+  @media (min-width: 768px) {
+    .steps-nav {
+      flex-direction: column !important;
+      width: 200px !important;
+      height: calc(100vh - 56px);
+      position: sticky !important;
+      top: 56px !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      border-bottom: none !important;
+      border-right: 1px solid var(--c-border) !important;
+      padding: 24px 12px !important;
+      gap: 20px !important;
+    }
+    .steps-nav-links {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      width: 100% !important;
+      gap: 12px !important;
+    }
+    .step-btn {
+      padding: 12px 14px !important;
+      border-bottom: none !important;
+      border-left: 3px solid transparent !important;
+      border-radius: 6px !important;
+      width: 100% !important;
+      text-align: left !important;
+      justify-content: flex-start !important;
+      font-size: 13.5px !important;
+    }
+    .step-btn.active {
+      background: var(--c-accent-light) !important;
+      border-left-color: var(--c-step-active) !important;
+    }
+    #themeToggleContainer {
+      border-left: none !important;
+      border-top: 1px solid var(--c-border) !important;
+      padding-top: 16px !important;
+      width: 100% !important;
+      margin-top: auto !important;
+      justify-content: space-between !important;
+    }
+  }
 
   /* MAIN */
   .main { padding: 16px; max-width: 1100px; margin: 0 auto; }
@@ -261,31 +329,32 @@
   <span class="md:ml-auto">ADP 2026 · CRMEF Inezgane · BOUARGANE &nbsp;|&nbsp; Niveau 2 · 10 séances</span>
 </header>
 
-<nav class="steps-nav flex flex-col md:flex-row md:items-center justify-between sticky top-0 z-50 shadow-sm" id="stepsNav">
-  <div class="flex overflow-x-auto w-full md:flex-1 scrollbar-hide">
-    <button class="step-btn active" onclick="goStep(1)" id="stepBtn1">
-      <span class="step-dot">1</span> Diagnostic
-    </button>
-    <button class="step-btn" onclick="goStep(2)" id="stepBtn2" disabled>
-      <span class="step-dot">2</span> Axes
-    </button>
-    <button class="step-btn" onclick="goStep(3)" id="stepBtn3" disabled>
-      <span class="step-dot">3</span> Paramétrage
-    </button>
-    <button class="step-btn" onclick="goStep(4)" id="stepBtn4" disabled>
-      <span class="step-dot">4</span> Planification
-    </button>
-  </div>
-  <div class="flex items-center justify-between md:justify-end w-full md:w-auto p-2 md:p-0 md:pl-4 md:border-l border-gray-300 dark:border-gray-700 md:ml-2 gap-2 border-t md:border-t-0">
-    <span class="md:hidden text-sm font-medium text-gray-500">Thème</span>
-    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
-      <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i>
-    </button>
-  </div>
-</nav>
+<div class="flex flex-col md:flex-row min-h-screen">
+  <nav class="steps-nav flex flex-col md:flex-row md:items-center justify-between sticky top-0 z-50 shadow-sm" id="stepsNav">
+    <div class="steps-nav-links flex overflow-x-auto w-full md:flex-1 scrollbar-hide">
+      <button class="step-btn active" onclick="goStep(1)" id="stepBtn1">
+        <span class="step-dot">1</span> Diagnostic
+      </button>
+      <button class="step-btn" onclick="goStep(2)" id="stepBtn2" disabled>
+        <span class="step-dot">2</span> Axes
+      </button>
+      <button class="step-btn" onclick="goStep(3)" id="stepBtn3" disabled>
+        <span class="step-dot">3</span> Paramétrage
+      </button>
+      <button class="step-btn" onclick="goStep(4)" id="stepBtn4" disabled>
+        <span class="step-dot">4</span> Planification
+      </button>
+    </div>
+    <div class="flex items-center justify-between w-full p-2 md:p-4 md:border-t md:border-l-0 border-gray-300 dark:border-gray-700 md:mt-auto gap-2 border-t" id="themeToggleContainer">
+      <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Mode Sombre</span>
+      <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
+        <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i>
+      </button>
+    </div>
+  </nav>
 
-<!-- ═══════════════════════════════════════════════════════ ÉTAPE 1 -->
-<div class="main">
+  <!-- ═══════════════════════════════════════════════════════ CONTENT AREA -->
+  <div class="main flex-1 w-full min-w-0">
 <div class="step-panel active" id="panel1">
 
   <!-- NOUVELLE ACTION BAR -->
@@ -399,6 +468,7 @@
 </div>
 
 </div><!-- /main -->
+</div><!-- /split interface wrapper -->
 
 <script>
 // ═══════════════════════════════════════════════════════════
