@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Outil EPS - Course de Haies",
+  "description": "Une application web autonome d'aide à la décision pour l'évaluation et la planification de l'enseignement de la course de haies en EPS.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
