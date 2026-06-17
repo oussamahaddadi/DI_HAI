@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="/src/index.css">
+<title>Outil EPS — HAIES — DI-HAI</title>
+<style>
+  :root {
+    --c-bg: #F7F6F3;
+    --c-surface: rgba(255, 255, 255, 0.85);
+    --c-border: rgba(226, 223, 216, 0.7);
+    --c-text: #1A1A18;
+    --c-muted: #6B6860;
+    --c-accent: #1D5FA6;
+    --c-accent-light: rgba(232, 240, 251, 0.8);
+    --c-A: rgba(252, 235, 235, 0.85);
+    --c-A-border: rgba(232, 160, 160, 0.8);
+    --c-A-text: #7A1F1F;
+    --c-B: #FFF3DC;
+    --c-B-border: #E8C070;
+    --c-B-text: #6B4A00;
+    --c-C: #EAF3DE;
+    --c-C-border: #8EC86A;
+    --c-C-text: #2A5A10;
+    --c-step-active: #1D5FA6;
+    --c-step-done: #2A8A3A;
+    --c-step-idle: #BDBAB2;
+    --radius: 8px;
+    --shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  html.dark {
+    --c-bg: #121210;
+    --c-surface: rgba(24, 24, 26, 0.75);
+    --c-border: rgba(80, 80, 75, 0.5);
+    --c-text: #EAEAE8;
+    --c-muted: #A09D96;
+    --c-accent: #4BA2FF;
+    --c-accent-light: rgba(43, 70, 105, 0.4);
+    --c-A: rgba(90, 30, 30, 0.6);
+    --c-A-border: rgba(160, 60, 60, 0.5);
+    --c-A-text: #FFB3B3;
+    --c-B: rgba(90, 70, 20, 0.6);
+    --c-B-border: rgba(160, 120, 40, 0.5);
+    --c-B-text: #FFDB99;
+    --c-C: rgba(40, 70, 30, 0.6);
+    --c-C-border: rgba(80, 140, 60, 0.5);
+    --c-C-text: #B3FF99;
+    --c-step-active: #4BA2FF;
+    --c-step-done: #4CAF50;
+    --c-step-idle: #6B6860;
+    --shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background: url('./src/assets/images/hurdles_background_1781699455359.jpg') no-repeat center center fixed; 
+    background-size: cover;
+    color: var(--c-text); 
+    font-size: 14px; 
+    line-height: 1.5; 
+    transition: background 0.3s, color 0.3s;
+  }
+  html.dark body {
+    background: linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.85)), url('./src/assets/images/hurdles_background_1781699455359.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
+  a { color: var(--c-accent); }
+
+  /* HEADER */
+  .app-header { background: rgba(29, 95, 166, 0.9); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: background 0.3s; }
+  html.dark .app-header { background: rgba(18, 18, 20, 0.8); border-bottom: 1px solid var(--c-border); color: #f0f0f0; }
+  .app-header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+  .app-header span { font-size: 12px; opacity: 0.75; margin-left: auto; }
+
+  /* STEPS NAV */
+  .steps-nav { background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 12px; }
+  .step-btn { padding: 12px 16px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-step-idle); border-bottom: 3px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; gap: 6px; }
+  .step-btn.active { color: var(--c-step-active); border-bottom-color: var(--c-step-active); }
+  .step-btn.done { color: var(--c-step-done); }
+  .step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .step-dot { width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; background: var(--c-step-idle); color: #fff; flex-shrink: 0; }
+  .step-btn.active .step-dot { background: var(--c-step-active); }
+  .step-btn.done .step-dot { background: var(--c-step-done); }
+
+  /* MAIN */
+  .main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+  /* FORM */
+  .form-grid-header, .form-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 40px; gap: 16px; align-items: center; }
+  .form-grid-header { font-size: 11px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 8px; border-bottom: 1px solid rgba(226, 223, 216, 0.7); margin-bottom: 12px; }
+  #rowsContainer { display: flex; flex-direction: column; gap: 12px; }
+  .form-row input[type="text"], .form-row input[type="number"] { border: 1px solid rgba(226, 223, 216, 0.8); border-radius: 6px; padding: 8px 10px; font-size: 13px; width: 100%; height: 36px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); color: var(--c-text); }
+  html.dark .form-row input[type="text"], html.dark .form-row input[type="number"] { background: rgba(30, 30, 30, 0.6); border-color: rgba(80, 80, 75, 0.8); box-shadow: inset 0 1px 4px rgba(0,0,0,0.2); }
+  .form-row input[type="number"] { text-align: center; }
+  .form-row input:focus { outline: none; border-color: var(--c-accent); background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15); }
+  html.dark .form-row input:focus { background: rgba(45, 45, 45, 0.95); box-shadow: 0 0 0 3px rgba(75, 162, 255, 0.3); }
+  .form-row input.err { border-color: #E05252; background: rgba(255, 245, 245, 0.8); }
+  html.dark .form-row input.err { background: rgba(80, 20, 20, 0.6); }
+  .btn-del { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(226, 223, 216, 0.8); border-radius: 6px; color: var(--c-muted); cursor: pointer; font-size: 16px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: all 0.2s; }
+  html.dark .btn-del { background: rgba(30, 30, 30, 0.5); border-color: rgba(80, 80, 75, 0.8); }
+  .btn-del:hover { background: rgba(252, 235, 235, 0.9); border-color: var(--c-A-border); color: var(--c-A-text); transform: scale(1.05); }
+  html.dark .btn-del:hover { background: rgba(90, 30, 30, 0.8); }
+  .row-error { grid-column: 1/-1; font-size: 11px; color: #C03030; padding: 2px 4px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none !important; }
+  .btn-primary { background: var(--c-accent); color: #fff; box-shadow: 0 2px 6px rgba(29, 95, 166, 0.4); }
+  .btn-primary:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29, 95, 166, 0.5); }
+  .btn-primary:not(:disabled):active { transform: translateY(0); }
+  .btn-secondary { background: rgba(255, 255, 255, 0.6); color: var(--c-text); border: 1px solid rgba(226, 223, 216, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  html.dark .btn-secondary { background: rgba(40, 40, 40, 0.6); border: 1px solid rgba(80, 80, 75, 0.8); }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.95); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.08); }
+  html.dark .btn-secondary:hover { background: rgba(60, 60, 60, 0.95); }
+  .btn-secondary:not(:disabled):active { transform: translateY(0); }
+  .btn-green { background: #2A8A3A; color: #fff; box-shadow: 0 2px 6px rgba(42, 138, 58, 0.4); }
+  .btn-green:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(42, 138, 58, 0.5); }
+  .btn-green:not(:disabled):active { transform: translateY(0); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+
+  /* IMPORT */
+  .import-zone { border: 2px dashed var(--c-border); border-radius: var(--radius); padding: 20px; text-align: center; color: var(--c-muted); cursor: pointer; transition: border-color 0.15s; }
+  .import-zone:hover, .import-zone.drag { border-color: var(--c-accent); background: var(--c-accent-light); }
+  .import-zone input { display: none; }
+
+  /* TABLES (IMPROVED) */
+  .tbl-wrap { 
+    overflow-x: auto; 
+    border-radius: var(--radius); 
+    max-height: 480px; 
+    overflow-y: auto; 
+    background: var(--c-surface);
+  }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+  th { 
+    background: var(--c-bg); 
+    font-size: 11px; 
+    font-weight: 600; 
+    color: var(--c-muted); 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    padding: 10px 12px; 
+    text-align: left; 
+    border-bottom: 2px solid var(--c-border); 
+    white-space: nowrap; 
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+  }
+  th.text-center, td.text-center { text-align: center; }
+  td { padding: 14px 16px; border-bottom: 1px solid #EBE9E4; vertical-align: top; transition: background 0.1s; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFAFA; }
+  
+  tr.row-A td:first-child { border-left: 4px solid var(--c-A-border); }
+  tr.row-B td:first-child { border-left: 4px solid var(--c-B-border); }
+  tr.row-C td:first-child { border-left: 4px solid var(--c-C-border); }
+
+  .td-score { font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: center; }
+
+  /* BADGES */
+  .badge { display: inline-block; border-radius: 12px; padding: 3px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-A { background: var(--c-A); color: var(--c-A-text); border: 1px solid var(--c-A-border); }
+  .badge-B { background: var(--c-B); color: var(--c-B-text); border: 1px solid var(--c-B-border); }
+  .badge-C { background: var(--c-C); color: var(--c-C-text); border: 1px solid var(--c-C-border); }
+
+  /* STAT CARDS */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 14px; text-align: center; box-shadow: var(--shadow); }
+  .stat-val { font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: var(--c-muted); margin-top: 2px; }
+  .stat-card.stat-A { border-top: 3px solid var(--c-A-border); }
+  .stat-card.stat-B { border-top: 3px solid var(--c-B-border); }
+  .stat-card.stat-C { border-top: 3px solid var(--c-C-border); }
+  .stat-card.stat-moy { border-top: 3px solid var(--c-accent); }
+
+  /* AXE CARDS */
+  .axe-card { border: 2px solid var(--c-border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .axe-card:hover { border-color: var(--c-accent); background: var(--c-accent-light); }
+  .axe-card.selected { border-color: var(--c-accent); background: var(--c-accent-light); }
+  .axe-card input[type="checkbox"] { accent-color: var(--c-accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .axe-card-head { display: flex; gap: 10px; align-items: flex-start; }
+  .axe-card-body { margin-top: 8px; padding-left: 26px; font-size: 12px; color: var(--c-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .axe-pct { display: inline-flex; align-items: center; gap: 4px; }
+  .axe-pct-bar { height: 6px; border-radius: 3px; background: var(--c-accent); display: inline-block; }
+  .axe-title { font-size: 13px; font-weight: 600; }
+
+  /* SLIDER */
+  .slider-wrap { margin: 16px 0; }
+  input[type="range"] { width: 100%; accent-color: var(--c-accent); height: 6px; }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--c-muted); margin-top: 4px; }
+  .slider-preview { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 12px; margin-top: 12px; font-size: 13px; }
+  .slider-preview .seq-row { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px dashed var(--c-border); }
+  .slider-preview .seq-row:last-child { border-bottom: none; }
+  .seq-num { background: var(--c-accent); color: #fff; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .seq-info { font-size: 12px; color: var(--c-text); }
+
+  /* PLANIF */
+  .planif-seq { margin-bottom: 20px; }
+  .seq-header { background: var(--c-accent); color: #fff; border-radius: var(--radius) var(--radius) 0 0; padding: 10px 14px; }
+  .seq-header h3 { font-size: 14px; }
+  .seq-header p { font-size: 12px; opacity: 0.82; margin-top: 2px; }
+  .planif-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .planif-table th { background: #F0EDE8; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.04em; border: 1px solid var(--c-border); }
+  .planif-table td { padding: 8px 10px; border: 1px solid var(--c-border); vertical-align: top; }
+  .planif-table td.td-A { background: #FEF8F8; }
+  .planif-table td.td-B { background: #FEFAF0; }
+  .planif-table td.td-C { background: #F6FBF0; }
+  .sa-name { font-weight: 600; color: var(--c-accent); margin-bottom: 4px; }
+  .consigne { margin-top: 4px; color: var(--c-text); }
+  .critere { margin-top: 4px; font-size: 11px; color: var(--c-muted); font-style: italic; }
+  .indicateur-box { background: #FFFBE6; border: 1px solid #E8C070; border-radius: 4px; padding: 7px 10px; margin: 6px 0; font-size: 11px; color: #6B4A00; }
+  .indicateur-note { font-size: 10px; color: var(--c-muted); margin-top: 2px; font-style: italic; }
+
+  /* RESUME CYCLE */
+  .resume-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .resume-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  .resume-card h4 { font-size: 12px; font-weight: 600; color: var(--c-muted); margin-bottom: 6px; }
+  .resume-card p { font-size: 13px; }
+
+  /* DECISION BOX */
+  .decision-box { background: var(--c-accent-light); border: 1px solid #96B8E0; border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
+  .decision-box strong { color: var(--c-accent); }
+
+  /* ALERT */
+  .alert { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+  .alert-info { background: var(--c-accent-light); border: 1px solid #96B8E0; color: #1A3A5C; }
+  .alert-warn { background: var(--c-B); border: 1px solid var(--c-B-border); color: var(--c-B-text); }
+  .alert-err { background: var(--c-A); border: 1px solid var(--c-A-border); color: var(--c-A-text); }
+
+  /* PRINT */
+  @media print {
+    .steps-nav, .btn-row, .btn, .import-zone, .form-grid-header, .form-row:not(.print-show), .app-header span { display: none !important; }
+    .step-panel { display: block !important; }
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  @media (max-width: 600px) {
+    .form-grid-header, .form-row { grid-template-columns: 2fr 1fr 1fr 1fr 36px; gap: 8px; }
+    .axe-card-body { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    td, th { padding: 5px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <h1>Outil EPS — Course de Haies · DI-HAI</h1>
+  </div>
+  <span>ADP 2026 · CRMEF Inezgane · BOUARGANE &nbsp;|&nbsp; Niveau 2 · 10 séances</span>
+</header>
+
+<nav class="steps-nav flex items-center justify-between sticky top-0 z-50 shadow-sm" id="stepsNav">
+  <div class="flex overflow-x-auto flex-1 scrollbar-hide">
+    <button class="step-btn active" onclick="goStep(1)" id="stepBtn1">
+      <span class="step-dot">1</span> Diagnostic
+    </button>
+    <button class="step-btn" onclick="goStep(2)" id="stepBtn2" disabled>
+      <span class="step-dot">2</span> Axes
+    </button>
+    <button class="step-btn" onclick="goStep(3)" id="stepBtn3" disabled>
+      <span class="step-dot">3</span> Paramétrage
+    </button>
+    <button class="step-btn" onclick="goStep(4)" id="stepBtn4" disabled>
+      <span class="step-dot">4</span> Planification
+    </button>
+  </div>
+  <div class="flex items-center pl-4 border-l border-gray-300 dark:border-gray-700 ml-2 gap-2">
+    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
+      <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ ÉTAPE 1 -->
+<div class="main">
+<div class="step-panel active" id="panel1">
+
+  <!-- NOUVELLE ACTION BAR -->
+  <div class="card" style="padding: 12px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; background: var(--c-surface);">
+    <div style="font-weight: 600; font-size: 13px; color: var(--c-muted); display:flex; align-items:center; gap:6px;">
+      <i data-lucide="folder" style="width: 16px; height: 16px;"></i> Gestion de Session Local
+    </div>
+    <div class="btn-row" style="margin-top:0;">
+      <button class="btn btn-secondary" onclick="loadDemo()"><i data-lucide="test-tube" style="width: 14px; height: 14px;"></i> Démo</button>
+      <button class="btn btn-secondary" onclick="exportJSON()"><i data-lucide="download" style="width: 14px; height: 14px;"></i> Sauvegarder</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('jsonFile').click()"><i data-lucide="upload" style="width: 14px; height: 14px;"></i> Charger (JSON)</button>
+      <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="importJSON(this)">
+      <button class="btn btn-secondary" style="border-color: #E05252; color: #E05252;" onclick="clearData()"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Nouvelle Session</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Saisie manuelle des élèves</div>
+    <div class="form-grid-header">
+      <div>Prénom</div><div>OBS-01</div><div>OBS-02</div><div>OBS-03</div><div></div>
+    </div>
+    <div id="rowsContainer"></div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-secondary" onclick="addRow()">+ Ajouter élève</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Import CSV terrain (format ADP 2026)</div>
+    <div class="import-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+      <input type="file" id="csvFile" accept=".csv,.txt" onchange="importCSV(this)">
+      <div style="margin-bottom:8px; display:flex; justify-content:center;"><i data-lucide="upload-cloud" style="width: 32px; height: 32px; color: var(--c-accent);"></i></div>
+      <div>Cliquer ou glisser un fichier CSV</div>
+      <div style="font-size:11px;margin-top:4px;">Colonnes reconnues : OBS01_*/OBS02_*/OBS03_* · _Degre · OBS1/2/3</div>
+    </div>
+    <div id="importLog" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Référentiel des seuils — extrait de la grille DI-HAI</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div style="background:var(--c-A);border-radius:6px;padding:12px;border:1px solid var(--c-A-border);">
+        <strong style="color:var(--c-A-text);">Degré A — Lacune</strong>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-A-text);">Score &lt; 4 /10<br>P− · CG− · RI−<br>Coureur sauteur</div>
+      </div>
+      <div style="background:var(--c-B);border-radius:6px;padding:12px;border:1px solid var(--c-B-border);">
+        <strong style="color:var(--c-B-text);">Degré B — Construction</strong>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-B-text);">Score 4–7 /10<br>P~ · CG~ · RI~<br>Coureur coordonné</div>
+      </div>
+      <div style="background:var(--c-C);border-radius:6px;padding:12px;border:1px solid var(--c-C-border);">
+        <strong style="color:var(--c-C-text);">Degré C — Maîtrisé</strong>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-C-text);">Score &gt; 7 /10<br>P+ · CG+ · RI+<br>Coureur accélérateur</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="analyser()"><i data-lucide="play" style="width: 16px; height: 16px;"></i> Analyser la classe</button>
+    <button class="btn btn-secondary" onclick="exportCSV()"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Exporter CSV</button>
+    <button class="btn btn-secondary" onclick="window.print()"><i data-lucide="printer" style="width: 16px; height: 16px;"></i> Imprimer</button>
+  </div>
+
+  <div id="resultsZone" style="margin-top:16px;"></div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ÉTAPE 2 -->
+<div class="step-panel" id="panel2">
+  <div class="card">
+    <div class="card-title">Sélectionnez 3 ou 4 axes prioritaires</div>
+    <div class="alert alert-info" style="margin-bottom:12px;">
+      Les axes ci-dessous sont extraits du référentiel <strong>DI-HAI</strong>. Sélectionnez <strong>3 ou 4 axes</strong> selon votre priorité terrain. La planification sera générée uniquement sur les axes validés.
+    </div>
+    <div id="axesContainer"></div>
+    <div id="axeMsg" style="font-size:12px;color:#C03030;margin-top:6px;display:none;"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goStep(1)"><i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Retour</button>
+    <button class="btn btn-green" id="btnStep3" onclick="goStep(3)" disabled>Paramétrer le cycle <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ÉTAPE 3 -->
+<div class="step-panel" id="panel3">
+  <div class="card">
+    <div class="card-title">Nombre de séances du cycle</div>
+    <div class="slider-wrap">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+        <input type="range" id="sliderSeances" min="6" max="10" value="10" oninput="updateSlider()">
+        <span id="sliderVal" style="font-size:22px;font-weight:700;color:var(--c-accent);min-width:40px;">10</span>
+        <span style="font-size:13px;color:var(--c-muted);">séances</span>
+      </div>
+      <div class="slider-labels"><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+    </div>
+    <div class="slider-preview" id="sliderPreview"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goStep(2)"><i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Retour aux axes</button>
+    <button class="btn btn-green" onclick="goStep(4)">Générer la planification <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ÉTAPE 4 -->
+<div class="step-panel" id="panel4">
+  <div id="planifZone"></div>
+  <div class="btn-row" style="margin-top:16px;">
+    <button class="btn btn-secondary" onclick="goStep(3)"><i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Retour paramétrage</button>
+    <button class="btn btn-secondary" onclick="window.print()"><i data-lucide="printer" style="width: 16px; height: 16px;"></i> Imprimer la planification</button>
+    <button class="btn btn-secondary" onclick="exportCSV()"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Exporter CSV</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DONNÉES PÉDAGOGIQUES — extraites des fichiers joints
+// ═══════════════════════════════════════════════════════════
+
+var APS = "HAIES";
+var CODE = "DI-HAI";
+
+// Observables (extraits grille_HAIES_COLL1_EQ_06.txt)
+var OBS = [
+  {
+    id: "OBS-01",
+    label: "Performance — Écart plat/haies",
+    A: { code: "P−", desc: "Écart > 4 s · course brisée", score: 3 },
+    B: { code: "P~", desc: "Écart 2–4 s · ralentissement modéré", score: 6 },
+    C: { code: "P+", desc: "Écart ≤ 2 s · haies intégrées", score: 9 }
+  },
+  {
+    id: "OBS-02",
+    label: "Trajectoire — Centre de gravité",
+    A: { code: "CG−", desc: "Bassin très élevé · saut vertical", score: 3 },
+    B: { code: "CG~", desc: "Légère élévation · trajectoire arrondie", score: 6 },
+    C: { code: "CG+", desc: "Trajectoire rasante · tronc incliné", score: 9 }
+  },
+  {
+    id: "OBS-03",
+    label: "Rythme inter-obstacle — Appuis",
+    A: { code: "RI−", desc: "5–6 appuis irréguliers · ajustements", score: 3 },
+    B: { code: "RI~", desc: "4 appuis réguliers · rythme stable N2", score: 6 },
+    C: { code: "RI+", desc: "3 appuis réguliers · rythme automatisé", score: 9 }
+  }
+];
+
+// Seuils
+function getProfile(score) {
+  if (score < 4) return "A";
+  if (score <= 7) return "B";
+  return "C";
+}
+
+// Axes (extraits referentiel_HAIES_DI-HAI.txt Partie B + sous-axes)
+var AXES = [
+  {
+    id: "AXE1",
+    title: "Impulsion loin de la haie — trajectoire rasante",
+    detail: "Apprentissage de l'impulsion et du franchissement horizontal (N1-6 \u2192 N2-4)",
+    obs: 1,
+    obsLabel: "OBS-02 (CG)",
+    prerequis: "N1-5 · N1-6",
+    impact: "Débloque N2-4 · N2-5 · N2-6",
+    priorite: "haute",
+    sa: {
+      A: { name: "SA-A1 Haie basse", consigne: "Franchir une haie abaissée à 50 cm en maintenant la course sans saut perçu", critere: "Le bassin ne dépasse pas la hauteur de la haie au franchissement" },
+      B: { name: "SA-B1 Impulsion guidée", consigne: "Impulser depuis une zone matérialisée au sol (50 cm avant la haie) avec genou d'attaque vers l'avant", critere: "L'attaque se fait genou haut dans l'axe de course" },
+      C: { name: "SA-C1 Trajectoire rasante N3", consigne: "Franchir la haie réglementaire en gardant le CG à hauteur constante sur 3 haies consécutives", critere: "Aucune élévation visible du bassin au-dessus de la haie" }
+    },
+    indicateur: "L'élève impulsé depuis la zone marque un franchissement sans saut vertical identifiable"
+  },
+  {
+    id: "AXE2",
+    title: "Rythme inter-obstacle — régularité des appuis",
+    detail: "Construction du rythme et de la régularité sur le parcours (N1-7 \u2192 N2-7)",
+    obs: 2,
+    obsLabel: "OBS-03 (RI)",
+    prerequis: "N1-13 · N1-9",
+    impact: "Débloque N2-3 · N2-7 · N2-8",
+    priorite: "moyenne",
+    sa: {
+      A: { name: "SA-A2 Comptage guidé", consigne: "Compter les appuis à voix haute entre deux haies consécutives et viser 5 puis 4 appuis", critere: "L'élève peut annoncer le nombre d'appuis réalisés après chaque passage" },
+      B: { name: "SA-B2 4 appuis réguliers", consigne: "Maintenir 4 appuis réguliers entre toutes les haies sur le parcours complet", critere: "Le rythme ne varie pas d'un intervalle à l'autre sur les 4 haies" },
+      C: { name: "SA-C2 Rythme N3", consigne: "Réaliser 3 appuis réguliers avec reprise dynamique en arrière de la haie", critere: "3 appuis constants observés sur 5 haies consécutives" }
+    },
+    indicateur: "L'élève maintient un nombre d'appuis stable sur au moins 3 intervalles consécutifs"
+  },
+  {
+    id: "AXE3",
+    title: "Intégration course-franchissement — performance globale",
+    detail: "Mise en relation chronométrée des acquis CG et RI (N1-4 \u2192 N2-1)",
+    obs: 0,
+    obsLabel: "OBS-01 (P)",
+    prerequis: "N1-6 consolidée · N1-7 consolidée · N1-4",
+    impact: "Débloque N2-1 · N2-7 · N2-8",
+    priorite: "consolidation",
+    sa: {
+      A: { name: "SA-A3 Course sans rupture", consigne: "Courir sans ralentir avant et après chaque haie sur un parcours de 3 haies basses", critere: "L'écart chronométrique plat/haies est inférieur à 4 s" },
+      B: { name: "SA-B3 Réduction écart", consigne: "Réaliser 3 passages avec mesure de l'écart plat/haies et viser une réduction de 1 s par session", critere: "L'écart plat/haies passe sous le seuil 4 s" },
+      C: { name: "SA-C3 Performance N2", consigne: "Réaliser la meilleure performance sur 50 m haies avec 4 appuis dans l'intervalle en élevant le moins possible le CG", critere: "L'écart plat/haies est inférieur à 2 s" }
+    },
+    indicateur: "L'élève maintient son rythme de course sans ajustement visible avant la haie sur 2 passages consécutifs"
+  },
+  {
+    id: "AXE4",
+    title: "Dissociation des jambes sur la haie",
+    detail: "Séparation jambe d'attaque / jambe d'esquive (N1-6 \u2192 N2-5)",
+    obs: 1,
+    obsLabel: "OBS-02 (CG)",
+    prerequis: "N1-6 · N1-3",
+    impact: "Débloque N2-5 · N2-6",
+    priorite: "technique",
+    sa: {
+      A: { name: "SA-A4 Jambe d'attaque", consigne: "Identifier et nommer sa jambe d'attaque avant chaque passage — passer la haie avec genou levé en avant", critere: "L'élève peut nommer sa jambe d'attaque et l'utilise à chaque franchissement" },
+      B: { name: "SA-B4 Esquive active", consigne: "Ramener la jambe d'esquive rapidement au sol après la haie pour reprendre la course", critere: "La reprise d'appui après la haie est visible et rapide" },
+      C: { name: "SA-C4 Dissociation fluide", consigne: "Franchir avec dissociation complète et reprise dynamique sur 5 haies consécutives", critere: "Aucune perte d'équilibre observée au franchissement" }
+    },
+    indicateur: "L'élève utilise sa jambe d'attaque de façon constante et reprend appui rapidement derrière la haie"
+  },
+  {
+    id: "AXE5",
+    title: "Coordination bras-jambes au franchissement",
+    detail: "Action dynamique des bras coordonnée avec les jambes (N1-3 \u2192 N2-6)",
+    obs: 1,
+    obsLabel: "OBS-02 (CG)",
+    prerequis: "N1-3",
+    impact: "Débloque N2-6 · stabilise CG",
+    priorite: "coordinative",
+    sa: {
+      A: { name: "SA-A5 Bras opposés", consigne: "Envoyer le bras opposé à la jambe d'attaque vers l'avant au moment du franchissement", critere: "Le bras opposé est visible en avant lors du franchissement" },
+      B: { name: "SA-B5 Équilibre actif", consigne: "Maintenir l'équilibre au franchissement grâce aux bras sur 4 haies consécutives", critere: "Aucun déséquilibre latéral visible au franchissement" },
+      C: { name: "SA-C5 Coordination N3", consigne: "Utiliser les bras de façon dynamique pour maintenir vitesse et équilibre sur tout le parcours", critere: "La coordination bras-jambes est automatisée et fluide" }
+    },
+    indicateur: "L'élève utilise ses bras de façon active et coordonnée sans y penser pendant au moins 3 franchissements consécutifs"
+  },
+  {
+    id: "AXE6",
+    title: "Gestion proactive de l'intervalle inter-haies",
+    detail: "Choisir l'intervalle et les appuis de façon proactive (N1-13 \u2192 N2-8)",
+    obs: 2,
+    obsLabel: "OBS-03 (RI)",
+    prerequis: "N1-13 · N1-9",
+    impact: "Débloque N2-8 · N2-12",
+    priorite: "décisionnelle",
+    sa: {
+      A: { name: "SA-A6 Choix du parcours", consigne: "Choisir parmi deux parcours celui dont l'espacement correspond à 4 appuis confortables et le justifier", critere: "L'élève justifie son choix par le nombre d'appuis" },
+      B: { name: "SA-B6 Observation du rôle", consigne: "En rôle d'observateur, compter les appuis d'un camarade et lui donner un retour en 1 phrase", critere: "Le retour donné est juste et utile" },
+      C: { name: "SA-C6 Auto-régulation", consigne: "Après chaque passage, analyser ses propres appuis et choisir le prochain parcours adapté", critere: "L'élève régule lui-même son intervalle sans aide de l'enseignant" }
+    },
+    indicateur: "L'élève choisit spontanément son parcours en fonction du nombre d'appuis qu'il vient de réaliser"
+  }
+];
+
+// Distribution séances selon axes × séances (tableau référentiel)
+var DISTRIB = {
+  3: { 6: [2,2,2], 7: [2,2,3], 8: [3,2,3], 9: [3,3,3], 10: [3,4,3] },
+  4: { 6: [1,2,2,1], 7: [2,2,2,1], 8: [2,2,2,2], 9: [2,3,2,2], 10: [3,2,3,2] }
+};
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAT GLOBAL
+// ═══════════════════════════════════════════════════════════
+var students = [];
+var results = [];
+var selectedAxes = [];
+var nbSeances = 10;
+var currentStep = 1;
+
+// ═══════════════════════════════════════════════════════════
+// PERSISTANCE LOCALE (LOCALSTORAGE) & IMPORT/EXPORT
+// ═══════════════════════════════════════════════════════════
+
+function saveState() {
+  var data = [];
+  var rows = document.querySelectorAll("#rowsContainer .form-row");
+  rows.forEach(function(r) {
+    var pr = r.querySelector(".pr").value.trim();
+    var o1 = r.querySelector(".o1").value.trim();
+    var o2 = r.querySelector(".o2").value.trim();
+    var o3 = r.querySelector(".o3").value.trim();
+    if (pr || o1 || o2 || o3) {
+      data.push({ pr: pr, o1: o1, o2: o2, o3: o3 });
+    }
+  });
+  var state = {
+    students: data,
+    selectedAxes: selectedAxes,
+    nbSeances: nbSeances,
+    currentStep: currentStep
+  };
+  localStorage.setItem("di_hai_data", JSON.stringify(state));
+}
+
+function loadState() {
+  var saved = localStorage.getItem("di_hai_data");
+  if (saved) {
+    try {
+      var state = JSON.parse(saved);
+      if (state.students && state.students.length > 0) {
+        var c = document.getElementById("rowsContainer");
+        c.innerHTML = "";
+        state.students.forEach(function(s) { addRowWithData(s); });
+      } else {
+        initRows();
+      }
+      selectedAxes = state.selectedAxes || [];
+      nbSeances = state.nbSeances || 10;
+      document.getElementById("sliderSeances").value = nbSeances;
+      
+      if (state.students && state.students.length > 0) {
+        var data = readRowsSilent();
+        if (data && data.length > 0) {
+          computeResultsSilent(data);
+        }
+      }
+      
+      if (state.currentStep) {
+         if (state.currentStep >= 2 && results.length > 0) {
+           buildAxes();
+           document.getElementById("stepBtn2").disabled = false;
+           document.getElementById("stepBtn2").classList.add("done");
+         }
+         if (state.currentStep >= 3) {
+           document.getElementById("stepBtn3").disabled = false;
+           document.getElementById("stepBtn3").classList.add("done");
+           updateSlider();
+         }
+         if (state.currentStep === 4) {
+           buildPlanif();
+           document.getElementById("stepBtn4").disabled = false;
+           document.getElementById("stepBtn4").classList.add("done");
+         }
+         goStep(state.currentStep);
+      }
+    } catch (e) {
+      console.error(e);
+      initRows();
+    }
+  } else {
+    initRows();
+  }
+}
+
+function readRowsSilent() {
+  var data = [];
+  var rows = document.querySelectorAll("#rowsContainer .form-row");
+  rows.forEach(function(r) {
+    var pr = r.querySelector(".pr").value.trim();
+    if (!pr) return;
+    var o1 = parseFloat(r.querySelector(".o1").value);
+    var o2 = parseFloat(r.querySelector(".o2").value);
+    var o3 = parseFloat(r.querySelector(".o3").value);
+    if (!isNaN(o1) && !isNaN(o2) && !isNaN(o3)) {
+      data.push({ prenom: pr, obs: [o1, o2, o3] });
+    }
+  });
+  return data;
+}
+
+function computeResultsSilent(data) {
+  results = data.map(function(d, i) {
+    var obs = d.obs.map(function(v) { return isNaN(v) ? 0 : Math.min(10, Math.max(0, v)); });
+    var moy = (obs[0] + obs[1] + obs[2]) / 3;
+    var note20 = Math.round(moy * 2 * 10) / 10;
+    var profils = obs.map(function(v) { return getProfile(v); });
+    var global = getProfile(moy);
+    var lacunes = [];
+    obs.forEach(function(v, j) {
+      if (getProfile(v) === "A") lacunes.push({ obs: j, val: v });
+    });
+    lacunes.sort(function(a, b) { return a.val - b.val; });
+    var axePrio = "", saReco = "";
+    if (lacunes.length > 0) {
+      var l = lacunes[0].obs;
+      if (l === 1) { axePrio = "Axe 1 — Impulsion et trajectoire rasante"; saReco = "SA-A1 Haie basse"; }
+      else if (l === 2) { axePrio = "Axe 2 — Rythme inter-obstacle"; saReco = "SA-A2 Comptage guidé"; }
+      else { axePrio = "Axe 3 — Intégration course-franchissement"; saReco = "SA-A3 Course sans rupture"; }
+    } else if (global === "B") {
+      axePrio = "Axe 2 — Rythme inter-obstacle"; saReco = "SA-B2 4 appuis réguliers";
+    } else {
+      axePrio = "Axe 3 — Performance globale N2"; saReco = "SA-C3 Performance N2";
+    }
+    return { prenom: d.prenom, obs: obs, moy: moy, note20: note20, global: global, profils: profils, lacunes: lacunes, axePrio: axePrio, saReco: saReco };
+  });
+  results.sort(function(a, b) { return b.moy - a.moy; });
+  results.forEach(function(r, i) { r.rang = i + 1; });
+  renderResults();
+}
+
+function clearData() {
+  if (confirm("Voulez-vous vraiment effacer toutes les données et démarrer une nouvelle session ?")) {
+    localStorage.removeItem("di_hai_data");
+    students = [];
+    results = [];
+    selectedAxes = [];
+    nbSeances = 10;
+    currentStep = 1;
+    document.getElementById("sliderSeances").value = 10;
+    
+    // Reset UI
+    document.getElementById("resultsZone").innerHTML = "";
+    document.getElementById("axesContainer").innerHTML = "";
+    document.getElementById("planifZone").innerHTML = "";
+    
+    document.getElementById("stepBtn2").disabled = true;
+    document.getElementById("stepBtn2").classList.remove("done");
+    document.getElementById("stepBtn3").disabled = true;
+    document.getElementById("stepBtn3").classList.remove("done");
+    document.getElementById("stepBtn4").disabled = true;
+    document.getElementById("stepBtn4").classList.remove("done");
+    
+    initRows();
+    goStep(1);
+    alert("Session réinitialisée.");
+  }
+}
+
+function exportJSON() {
+  saveState();
+  var saved = localStorage.getItem("di_hai_data");
+  if(!saved) return;
+  var blob = new Blob([saved], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  var d = new Date();
+  var ds = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
+  a.download = "session_eps_haies_" + ds + ".json";
+  a.click();
+}
+
+function importJSON(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var state = JSON.parse(e.target.result);
+      localStorage.setItem("di_hai_data", JSON.stringify(state));
+      loadState();
+      alert("Session restaurée avec succès.");
+      // Auto-analyze to restore views
+      setTimeout(function() { analyser(); }, 100);
+    } catch(err) {
+      alert("Fichier JSON invalide.");
+    }
+  };
+  reader.readAsText(file);
+  input.value = ""; // reset
+}
+
+function loadDemo() {
+  if (confirm("Remplacer les données actuelles par des données d'exemple ?")) {
+    var demoData = [
+      { pr: "Amine", o1: "3", o2: "4", o3: "3" },
+      { pr: "Sarah", o1: "7", o2: "6", o3: "8" },
+      { pr: "Youssef", o1: "9", o2: "9", o3: "8" },
+      { pr: "Kenza", o1: "5", o2: "5", o3: "4" },
+      { pr: "Mehdi", o1: "2", o2: "3", o3: "4" },
+      { pr: "Hiba", o1: "8", o2: "7", o3: "7" }
+    ];
+    var c = document.getElementById("rowsContainer");
+    c.innerHTML = "";
+    demoData.forEach(function(s) { addRowWithData(s); });
+    saveState();
+    analyser();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAPE 1 — SAISIE ET DIAGNOSTIC
+// ═══════════════════════════════════════════════════════════
+
+function initRows() {
+  var c = document.getElementById("rowsContainer");
+  c.innerHTML = "";
+  for (var i = 0; i < 3; i++) addRow();
+}
+
+function addRowWithData(d) {
+  var c = document.getElementById("rowsContainer");
+  var id = Date.now() + Math.random();
+  var div = document.createElement("div");
+  div.className = "form-row";
+  div.id = "row_" + id;
+  div.innerHTML =
+    "<input type='text' placeholder='Prénom' class='pr' value='" + escHtml(d.pr||"") + "'>" +
+    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o1' value='" + escHtml(d.o1||"") + "'>" +
+    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o2' value='" + escHtml(d.o2||"") + "'>" +
+    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o3' value='" + escHtml(d.o3||"") + "'>" +
+    "<button class='btn-del' onclick='delRow(\"" + id + "\")'>×</button>";
+  c.appendChild(div);
+}
+
+function addRow() {
+  addRowWithData({pr:"", o1:"", o2:"", o3:""});
+  saveState();
+}
+
+function delRow(id) {
+  var el = document.getElementById("row_" + id);
+  if (el) { el.remove(); saveState(); }
+}
+
+function readRows() {
+  // FIX V_1.2 — Valider chaque ligne : prénom obligatoire + 3 valeurs numériques [0-10]
+  var data = [];
+  var hasError = false;
+  var rows = document.querySelectorAll("#rowsContainer .form-row");
+  rows.forEach(function(r) {
+    var prInput = r.querySelector(".pr");
+    var o1Input = r.querySelector(".o1");
+    var o2Input = r.querySelector(".o2");
+    var o3Input = r.querySelector(".o3");
+    var pr = prInput.value.trim();
+    if (!pr) return; // ligne vide ignorée silencieusement
+    var vals = [o1Input, o2Input, o3Input];
+    var obs = [];
+    var rowErr = false;
+    vals.forEach(function(inp) {
+      inp.classList.remove("err");
+      var v = parseFloat(inp.value);
+      if (inp.value === "" || isNaN(v) || v < 0 || v > 10) {
+        inp.classList.add("err");
+        rowErr = true;
+        hasError = true;
+      } else {
+        obs.push(v);
+      }
+    });
+    if (!rowErr) data.push({ prenom: pr, obs: obs });
+  });
+  if (hasError) {
+    document.getElementById("resultsZone").innerHTML =
+      "<div class='alert alert-err'>⚠ Certains champs sont vides ou hors plage (0–10). Corrigez les cases en rouge avant d'analyser.</div>";
+    return [];
+  }
+  return data;
+}
+
+function codeToScore(code) {
+  for (var i = 0; i < OBS.length; i++) {
+    if (OBS[i].A.code === code) return OBS[i].A.score;
+    if (OBS[i].B.code === code) return OBS[i].B.score;
+    if (OBS[i].C.code === code) return OBS[i].C.score;
+  }
+  return null;
+}
+
+// Import CSV
+function importCSV(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    parseCSV(text);
+  };
+  reader.readAsText(file, "UTF-8");
+}
+
+function parseCSV(text) {
+  var lines = text.split(/\r?\n/);
+  var headerIdx = -1;
+  var cols = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].indexOf("Nom_Eleve") !== -1 || lines[i].indexOf("Prenom") !== -1) {
+      headerIdx = i;
+      cols = lines[i].split(/[,;]/);
+      break;
+    }
+  }
+  if (headerIdx === -1) {
+    document.getElementById("importLog").innerHTML =
+      "<div class='alert alert-err'>En-tête non trouvé. Vérifiez que votre CSV contient une colonne Nom_Eleve ou Prenom.</div>";
+    return;
+  }
+  // Trouver les colonnes
+  var prenomIdx = -1, o1Idx = -1, o2Idx = -1, o3Idx = -1;
+  cols.forEach(function(c, i) {
+    var cl = c.trim().toLowerCase();
+    if (cl === "nom_eleve" || cl === "prenom" || cl === "nom") prenomIdx = i;
+    // Priorité 1 — codes métier
+    if (cl.indexOf("obs01") !== -1 || cl.indexOf("obs-01") !== -1 || cl.indexOf("obs_01") !== -1) o1Idx = i;
+    if (cl.indexOf("obs02") !== -1 || cl.indexOf("obs-02") !== -1 || cl.indexOf("obs_02") !== -1) o2Idx = i;
+    if (cl.indexOf("obs03") !== -1 || cl.indexOf("obs-03") !== -1 || cl.indexOf("obs_03") !== -1) o3Idx = i;
+  });
+  // Priorité 2 — Degre
+  if (o1Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs01_degre") o1Idx = i; });
+  if (o2Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs02_degre") o2Idx = i; });
+  if (o3Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs03_degre") o3Idx = i; });
+  // Priorité 3 — OBS1/2/3
+  if (o1Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs1") o1Idx = i; });
+  if (o2Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs2") o2Idx = i; });
+  if (o3Idx === -1) cols.forEach(function(c, i) { if (c.trim().toLowerCase() === "obs3") o3Idx = i; });
+
+  var imported = 0, ignored = 0;
+  var c2 = document.getElementById("rowsContainer");
+  c2.innerHTML = "";
+  for (var j = headerIdx + 1; j < lines.length; j++) {
+    var line = lines[j].trim();
+    if (!line || line.indexOf("BILAN_CLASSE") !== -1) { ignored++; continue; }
+    var parts = line.split(/[,;]/);
+    var pr = prenomIdx !== -1 ? parts[prenomIdx].trim().replace(/^"|"$/g, "") : "";
+    if (!pr) { ignored++; continue; }
+    var v1 = getVal(parts, o1Idx);
+    var v2 = getVal(parts, o2Idx);
+    var v3 = getVal(parts, o3Idx);
+    // Ajouter dans le formulaire
+    var id = Date.now() + Math.random();
+    var div = document.createElement("div");
+    div.className = "form-row";
+    div.id = "row_" + id;
+    div.innerHTML =
+      "<input type='text' placeholder='Prénom' class='pr' value='" + escHtml(pr) + "'>" +
+      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o1' value='" + v1 + "'>" +
+      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o2' value='" + v2 + "'>" +
+      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o3' value='" + v3 + "'>" +
+      "<button class='btn-del' onclick='delRow(\"" + id + "\")'>×</button>";
+    c2.appendChild(div);
+    imported++;
+  }
+  document.getElementById("importLog").innerHTML =
+    "<div class='alert alert-info'>" + imported + " élèves importés · " + ignored + " lignes ignorées.</div>";
+}
+
+function getVal(parts, idx) {
+  if (idx === -1 || idx >= parts.length) return "";
+  var v = parts[idx].trim().replace(/^"|"$/g, "");
+  var s = codeToScore(v);
+  if (s !== null) return s;
+  var n = parseFloat(v);
+  if (!isNaN(n)) return n;
+  var mp = { "A": 3, "B": 6, "C": 9 };
+  if (mp[v.toUpperCase()] !== undefined) return mp[v.toUpperCase()];
+  return "";
+}
+
+function analyser() {
+  var data = readRows();
+  if (data.length === 0) {
+    alert("Aucun élève saisi.");
+    return;
+  }
+  // Calculer résultats
+  results = data.map(function(d, i) {
+    var obs = d.obs.map(function(v) { return isNaN(v) ? 0 : Math.min(10, Math.max(0, v)); });
+    var moy = (obs[0] + obs[1] + obs[2]) / 3;
+    var note20 = Math.round(moy * 2 * 10) / 10;
+    var profils = obs.map(function(v) { return getProfile(v); });
+    var global = getProfile(moy);
+    var lacunes = [];
+    obs.forEach(function(v, j) {
+      if (getProfile(v) === "A") lacunes.push({ obs: j, val: v });
+    });
+    lacunes.sort(function(a, b) { return a.val - b.val; });
+    var axePrio = "";
+    var saReco = "";
+    if (lacunes.length > 0) {
+      var l = lacunes[0].obs;
+      if (l === 1) { axePrio = "Axe 1 — Impulsion et trajectoire rasante"; saReco = "SA-A1 Haie basse"; }
+      else if (l === 2) { axePrio = "Axe 2 — Rythme inter-obstacle"; saReco = "SA-A2 Comptage guidé"; }
+      else { axePrio = "Axe 3 — Intégration course-franchissement"; saReco = "SA-A3 Course sans rupture"; }
+    } else if (global === "B") {
+      axePrio = "Axe 2 — Rythme inter-obstacle"; saReco = "SA-B2 4 appuis réguliers";
+    } else {
+      axePrio = "Axe 3 — Performance globale N2"; saReco = "SA-C3 Performance N2";
+    }
+    return { prenom: d.prenom, obs: obs, moy: moy, note20: note20, global: global, profils: profils, lacunes: lacunes, axePrio: axePrio, saReco: saReco };
+  });
+  // FIX V_1.1 — Trier et reporter le rang sur les objets de results (pas sur une copie)
+  results.sort(function(a, b) { return b.moy - a.moy; });
+  results.forEach(function(r, i) { r.rang = i + 1; });
+  renderResults();
+  // Activer étape 2
+  buildAxes();
+  document.getElementById("stepBtn2").disabled = false;
+  document.getElementById("stepBtn2").classList.add("done");
+}
+
+function renderResults() {
+  var zone = document.getElementById("resultsZone");
+  if (!results.length) { zone.innerHTML = ""; return; }
+
+  // Stats
+  var nbA = results.filter(function(r) { return r.global === "A"; }).length;
+  var nbB = results.filter(function(r) { return r.global === "B"; }).length;
+  var nbC = results.filter(function(r) { return r.global === "C"; }).length;
+  var moyC = results.reduce(function(s, r) { return s + r.moy; }, 0) / results.length;
+  var moyC20 = Math.round(moyC * 2 * 10) / 10;
+  var n = results.length;
+
+  var dom = nbA >= nbB && nbA >= nbC ? "A" : (nbB >= nbC ? "B" : "C");
+  var decisionMsg = dom === "A"
+    ? "Classe débutante — Priorité fondamentaux (Axes 1 et 2)"
+    : (dom === "B" ? "Classe intermédiaire — Différenciation A/B" : "Classe avancée — Approfondissement et tutorat");
+
+  var pA = Math.round(nbA / n * 100), pB = Math.round(nbB / n * 100), pC = Math.round(nbC / n * 100);
+
+  var html = "<div class='card'><div class='card-title'>Bilan de classe</div>";
+  html += "<div class='stat-grid'>";
+  html += "<div class='stat-card stat-A'><div class='stat-val' style='color:var(--c-A-text)'>" + nbA + "</div><div class='stat-label'>Degré A — Lacune<br>" + pA + "%</div></div>";
+  html += "<div class='stat-card stat-B'><div class='stat-val' style='color:var(--c-B-text)'>" + nbB + "</div><div class='stat-label'>Degré B — Construction<br>" + pB + "%</div></div>";
+  html += "<div class='stat-card stat-C'><div class='stat-val' style='color:var(--c-C-text)'>" + nbC + "</div><div class='stat-label'>Degré C — Maîtrisé<br>" + pC + "%</div></div>";
+  html += "<div class='stat-card stat-moy'><div class='stat-val' style='color:var(--c-accent)'>" + moyC.toFixed(1) + "</div><div class='stat-label'>Moyenne /10<br>" + moyC20 + " /20</div></div>";
+  html += "</div>";
+  html += "<div class='decision-box'><strong>Décision automatique :</strong> " + decisionMsg + "</div>";
+
+  // Analyse par observable
+  html += "<div style='margin-bottom:12px;'><strong style='font-size:13px;'>Analyse par observable</strong></div>";
+  OBS.forEach(function(o, i) {
+    var moy = results.reduce(function(s, r) { return s + r.obs[i]; }, 0) / n;
+    var p = getProfile(moy);
+    var msg = p === "A" ? "Lacune collective — SA prioritaire à renforcer" : (p === "B" ? "En cours — Consolider" : "Bon niveau — Approfondir");
+    var col = p === "A" ? "var(--c-A-text)" : (p === "B" ? "var(--c-B-text)" : "var(--c-C-text)");
+    html += "<div style='display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--c-border);'>";
+    html += "<span class='badge badge-" + p + "'>" + o.id + "</span>";
+    html += "<span style='flex:1;font-size:13px;'>" + o.label + "</span>";
+    html += "<span style='font-size:13px;font-weight:600;color:" + col + ";'>" + moy.toFixed(1) + "/10</span>";
+    html += "<span style='font-size:12px;color:var(--c-muted);'>" + msg + "</span>";
+    html += "</div>";
+  });
+  html += "</div>";
+
+  // Liste individuelle (Beautiful List View)
+  html += "<div class='card' style='padding:20px; overflow:hidden; background: transparent; border: none; box-shadow: none;'><div class='card-title' style='padding: 0 0 16px 0; margin-bottom: 0; display:flex; align-items:center; gap:8px;'><i data-lucide=\"users\" style=\"width:18px;height:18px;\"></i> Résultats individuels (" + n + " élèves)</div>";
+  html += "<div style='display:flex; flex-direction:column; gap:16px;'>";
+  
+  results.forEach(function(r) {
+    var pGlobal = r.global; // A, B, C
+    
+    html += "<div class='student-row row-" + pGlobal + "' style='display:flex; flex-wrap:wrap; align-items:stretch; background:#fff; border:1px solid var(--c-" + pGlobal + "-border); border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:transform 0.2s; position:relative;'>";
+    
+    // Left border indicator (colored)
+    html += "<div style='width:6px; background:var(--c-" + pGlobal + "-border); flex-shrink:0;'></div>";
+    
+    // Core Info (Rank & Name)
+    html += "<div style='padding: 16px; flex: 1 1 200px; display:flex; flex-direction:column; justify-content:center; border-right:1px solid var(--c-border);'>";
+    html += "  <div style='display:flex; align-items:center; gap:8px; margin-bottom: 10px;'>";
+    html += "    <span style='font-size:11px; font-weight:700; color:var(--c-muted); background:#F0EDE8; padding:2px 8px; border-radius:12px;'>#" + r.rang + "</span>";
+    html += "    <strong style='font-size: 16px; color:var(--c-text); display:flex; align-items:center; gap:6px;'><i data-lucide=\"user\" style=\"width:16px;height:16px;color:var(--c-muted);\"></i> " + escHtml(r.prenom) + "</strong>";
+    html += "  </div>";
+    html += "  <div style='display: flex; gap: 8px; align-items: center; flex-wrap: wrap;'>";
+    html += "    <span class='badge badge-" + pGlobal + "' style='font-size: 11px; padding: 4px 8px;'><i data-lucide=\"bar-chart-2\" style=\"width:12px;height:12px;display:inline-block;vertical-align:text-bottom;margin-right:4px;\"></i> " + pGlobal + " - " + profileLabel(pGlobal) + "</span>";
+    html += "    <span style='font-family:monospace;font-size:11px;color:var(--c-muted); background: #f4f2ee; padding: 4px 8px; border-radius: 6px;'>" + r.profils.join(" / ") + "</span>";
+    html += "  </div>";
+    html += "</div>";
+
+    // Scores
+    html += "<div style='padding: 16px; flex: 0 0 auto; display:flex; flex-direction:column; justify-content:center; border-right:1px solid var(--c-border); background:#FCFBFA;'>";
+    html += "  <div style='font-size:10px; text-transform:uppercase; letter-spacing: 0.05em; font-weight:700; color:var(--c-muted); margin-bottom:10px; text-align:center;'>Observables</div>";
+    html += "  <div style='display:flex; gap:8px; justify-content:center;'>";
+    r.obs.forEach(function(v, i) { 
+      var p = getProfile(v);
+      html += "<div style='display:flex; flex-direction:column; align-items:center;' title='OBS-0" + (i+1) + "'>";
+      html += "<span class='badge badge-" + p + "' style='min-width:34px; text-align:center; padding:4px 0;'>" + v.toFixed(1) + "</span>";
+      html += "</div>";
+    });
+    html += "  </div>";
+    html += "</div>";
+    
+    // Average
+    html += "<div style='padding: 16px; flex: 0 0 110px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-right:1px solid var(--c-border);'>";
+    html += "  <div style='font-size:11px; text-transform:uppercase; font-weight:700; letter-spacing: 0.05em; color:var(--c-muted); margin-bottom:4px;'>Moyenne</div>";
+    html += "  <div style='font-size: 22px; font-weight:800; color:var(--c-accent); font-family:\"JetBrains Mono\", monospace; line-height:1;'>" + r.moy.toFixed(1) + "<span style='font-size:13px; font-weight:600; opacity:0.5;'>/10</span></div>";
+    html += "  <div style='font-size:13px; color:var(--c-muted); margin-top:4px; font-weight:600;'>" + r.note20 + "/20</div>";
+    html += "</div>";
+    
+    // Analyse
+    html += "<div style='padding: 16px; flex: 1 1 220px; display:flex; flex-direction:column; justify-content:center; border-right:1px solid var(--c-border);'>";
+    html += "  <div style='font-size:11px; text-transform:uppercase; font-weight:700; letter-spacing: 0.05em; color:var(--c-muted); margin-bottom:8px; display:flex; align-items:center; gap:6px;'><i data-lucide=\"microscope\" style=\"width:14px;height:14px;\"></i> Diagnostic</div>";
+    
+    var lacStr = r.lacunes.length > 0
+      ? r.lacunes.map(function(l, i) { 
+          return "<div style='margin-bottom:6px; font-size: 12px; display:flex; align-items:flex-start; gap:6px;'><i data-lucide=\"alert-circle\" style=\"width:14px;height:14px;color:var(--c-A-text); flex-shrink:0; margin-top:2px;\"></i> <div><strong style='color:var(--c-A-text)'>L" + (i + 1) + "</strong> <span style='opacity:0.5'>—</span> " + OBS[l.obs].id + " : <strong>" + l.val.toFixed(1) + "</strong></div></div>"; 
+        }).join("")
+      : "<div style='color:var(--c-muted); font-style:italic; font-size: 12px; display:flex; align-items:center; gap:6px;'><i data-lucide=\"check-circle-2\" style=\"width:14px;height:14px;color:var(--c-step-done);\"></i> Aucune lacune fondamentale</div>";
+      
+    html += lacStr;
+    html += "  <div style='margin-top: 10px; font-size:12px; font-weight:600; color:var(--c-accent); display:flex; align-items:flex-start; gap:6px; background:#E8F0FB; border-radius:6px; padding:6px 8px;'><i data-lucide=\"target\" style=\"width:14px;height:14px;flex-shrink:0;margin-top:2px;\"></i> <span style='line-height:1.4;'>" + r.axePrio + "</span></div>";
+    html += "</div>";
+    
+    // SA Recommandée
+    html += "<div style='padding: 16px; flex: 1 1 200px; display:flex; flex-direction:column; justify-content:center; background:#FAFAFA;'>";
+    html += "  <div style='font-size:11px; text-transform:uppercase; font-weight:700; letter-spacing: 0.05em; color:var(--c-muted); margin-bottom:8px; display:flex; align-items:center; gap:6px;'><i data-lucide=\"play-circle\" style=\"width:14px;height:14px;\"></i> SA Recommandée</div>";
+    html += "  <div style='font-size:13px; font-weight:600; color:var(--c-text); background:#fff; border: 1px solid #EBE9E4; padding:10px 12px; border-radius:8px; line-height:1.4; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>" + r.saReco + "</div>";
+    html += "</div>";
+
+    html += "</div>";
+  });
+  
+  html += "</div></div>";
+  zone.innerHTML = html;
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+function profileLabel(p) {
+  return p === "A" ? "Lacune" : (p === "B" ? "Construction" : "Maîtrisé");
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAPE 2 — AXES
+// ═══════════════════════════════════════════════════════════
+
+function buildAxes() {
+  // Calculer pertinence de chaque axe
+  var n = results.length || 1;
+  var pA = [0, 0, 0]; // % lacune par observable
+  results.forEach(function(r) {
+    r.profils.forEach(function(p, i) { if (p === "A") pA[i]++; });
+  });
+  pA = pA.map(function(v) { return Math.round(v / n * 100); });
+
+  // Trier les axes par pertinence
+  var axesSorted = AXES.slice().sort(function(a, b) {
+    return (pA[b.obs] || 0) - (pA[a.obs] || 0);
+  });
+
+  var html = "";
+  axesSorted.forEach(function(axe, i) {
+    var pct = pA[axe.obs] || 0;
+    var barW = Math.max(4, pct);
+    html += "<div class='axe-card' id='axeCard_" + axe.id + "' onclick='toggleAxe(\"" + axe.id + "\")'>";
+    html += "<div class='axe-card-head'>";
+    html += "<input type='checkbox' id='chk_" + axe.id + "' onclick='event.stopPropagation();toggleAxe(\"" + axe.id + "\")'>";
+    html += "<div style='flex:1'>";
+    html += "<div class='axe-title'>Axe " + (i + 1) + " — " + axe.title + "</div>";
+    html += "<div style='font-size:12px;color:var(--c-muted);margin-top:2px;'>" + axe.detail + "</div>";
+    html += "</div></div>";
+    html += "<div class='axe-card-body'>";
+    html += "<div><span class='axe-pct'>Pertinence : <span class='axe-pct-bar' style='width:" + barW + "px'></span> <strong>" + pct + "%</strong> des élèves concernés</span></div>";
+    html += "<div>Observable lié : <strong>" + axe.obsLabel + "</strong></div>";
+    html += "<div>Prérequis : " + axe.prerequis + "</div>";
+    html += "<div>Impact : " + axe.impact + "</div>";
+    html += "</div></div>";
+  });
+  document.getElementById("axesContainer").innerHTML = html;
+  selectedAxes = [];
+  updateAxeBtn();
+}
+
+function toggleAxe(id) {
+  var idx = selectedAxes.indexOf(id);
+  if (idx !== -1) {
+    selectedAxes.splice(idx, 1);
+  } else {
+    if (selectedAxes.length >= 4) {
+      var msg = document.getElementById("axeMsg");
+      msg.textContent = "Maximum 4 axes atteint. Décochez un axe avant d'en sélectionner un autre.";
+      msg.style.display = "block";
+      return;
+    }
+    selectedAxes.push(id);
+    document.getElementById("axeMsg").style.display = "none";
+  }
+  var card = document.getElementById("axeCard_" + id);
+  var chk = document.getElementById("chk_" + id);
+  if (card && chk) {
+    chk.checked = selectedAxes.indexOf(id) !== -1;
+    card.classList.toggle("selected", chk.checked);
+  }
+  updateAxeBtn();
+  saveState();
+}
+
+function updateAxeBtn() {
+  var btn = document.getElementById("btnStep3");
+  btn.disabled = selectedAxes.length < 3;
+  if (selectedAxes.length < 3) {
+    btn.title = "Sélectionnez au moins 3 axes";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAPE 3 — SLIDER
+// ═══════════════════════════════════════════════════════════
+
+function updateSlider() {
+  nbSeances = parseInt(document.getElementById("sliderSeances").value);
+  document.getElementById("sliderVal").textContent = nbSeances;
+  var na = selectedAxes.length;
+  // FIX V_1.3 — Afficher un message d'attente si axes pas encore sélectionnés
+  if (na < 3 || na > 4) {
+    document.getElementById("sliderPreview").innerHTML =
+      "<div style='color:var(--c-muted);font-size:13px;padding:8px 0;'>Sélectionnez 3 ou 4 axes à l'étape 2 pour voir la distribution.</div>";
+    return;
+  }
+  var dist = DISTRIB[na][nbSeances];
+  var html = "<div style='margin-bottom:8px;font-size:13px;'><strong>Cycle de " + nbSeances + " séances \u00b7 " + na + " séquences</strong></div>";
+  dist.forEach(function(d, i) {
+    var axeId = selectedAxes[i];
+    var axeObj = AXES.filter(function(a) { return a.id === axeId; })[0];
+    var title = axeObj ? axeObj.title : axeId;
+    html += "<div class='seq-row'><span class='seq-num'>Séq " + (i + 1) + " \u00b7 " + d + " s.</span><span class='seq-info'>" + title + "</span></div>";
+  });
+  document.getElementById("sliderPreview").innerHTML = html;
+  saveState();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAPE 4 — PLANIFICATION
+// ═══════════════════════════════════════════════════════════
+
+function buildPlanif() {
+  var na = selectedAxes.length;
+  if (na < 3) return;
+  var dist = DISTRIB[na][nbSeances] || DISTRIB[3][10];
+  var n = results.length || 0;
+  var nbA = results.filter(function(r) { return r.global === "A"; }).length;
+  var nbB = results.filter(function(r) { return r.global === "B"; }).length;
+  var nbC = results.filter(function(r) { return r.global === "C"; }).length;
+  var dom = nbA >= nbB && nbA >= nbC ? "A" : (nbB >= nbC ? "B" : "C");
+  var profDom = profileLabel(dom);
+
+  var html = "";
+  var seanceGlobal = 0;
+
+  dist.forEach(function(nbS, si) {
+    var axeId = selectedAxes[si];
+    var axeObj = AXES.filter(function(a) { return a.id === axeId; })[0];
+    if (!axeObj) return;
+    var seqStart = seanceGlobal + 1;
+
+    html += "<div class='planif-seq'>";
+    html += "<div class='seq-header'>";
+    html += "<h3>Séquence " + (si + 1) + " — " + axeObj.title + "</h3>";
+    html += "<p>Séances " + seqStart + " à " + (seqStart + nbS - 1) + " &nbsp;|&nbsp; " + nbS + " séances &nbsp;|&nbsp; Axes travaillés : " + axeObj.id + (si > 0 ? " + précédent(s)" : "") + "</p>";
+    html += "</div>";
+    html += "<div class='tbl-wrap'><table class='planif-table'>";
+    html += "<thead><tr><th>N° séance</th><th>Axe dominant</th><th>Objectif</th><th class='td-A'>Groupe A — Débutants (Degré A)</th><th class='td-B'>Groupe B — Construction (Degré B)</th><th class='td-C'>Groupe C — Maîtrise (Degré C)</th></tr></thead><tbody>";
+
+    for (var s = 0; s < nbS; s++) {
+      seanceGlobal++;
+      var isLast = (s === nbS - 1) && (si === dist.length - 1);
+      var obj = si === 0
+        ? "Découvrir et construire la conduite liée à " + axeObj.title.toLowerCase()
+        : (si === dist.length - 1
+          ? "Consolider et mesurer les acquis des séquences précédentes"
+          : "Approfondir " + axeObj.title.toLowerCase() + " en différenciation");
+
+      if (isLast) obj = "Évaluation formative — bilan de cycle — tournoi officiel";
+
+      var saA = axeObj.sa.A, saB = axeObj.sa.B, saC = axeObj.sa.C;
+
+      html += "<tr>";
+      html += "<td><strong>S" + seanceGlobal + "</strong></td>";
+      html += "<td style='font-size:12px;color:var(--c-accent);font-weight:600;'>" + axeObj.id + "<br><span style='font-weight:400;color:var(--c-muted);'>" + axeObj.title.substring(0, 30) + "…</span></td>";
+      html += "<td style='font-size:12px;'>" + obj + "</td>";
+      html += "<td class='td-A'><div class='sa-name'>" + saA.name + "</div><div class='consigne'>" + saA.consigne + "</div><div class='critere'>✓ " + saA.critere + "</div></td>";
+      html += "<td class='td-B'><div class='sa-name'>" + saB.name + "</div><div class='consigne'>" + saB.consigne + "</div><div class='critere'>✓ " + saB.critere + "</div></td>";
+      html += "<td class='td-C'><div class='sa-name'>" + saC.name + "</div><div class='consigne'>" + saC.consigne + "</div><div class='critere'>✓ " + saC.critere + "</div></td>";
+      html += "</tr>";
+
+      if (!isLast) {
+        html += "<tr><td colspan='6'><div class='indicateur-box' style='display:flex; align-items:center; gap:8px;'><i data-lucide=\"clipboard-list\" style=\"width:16px;height:16px;\"></i> <div><strong>À observer avant la séance suivante —</strong> " + axeObj.indicateur + "<div class='indicateur-note'>(Indicatif — decision de progression : vous)</div></div></div></td></tr>";
+      }
+    }
+
+    html += "</tbody></table></div></div>";
+  });
+
+  // Résumé
+  html += "<div class='card'><div class='card-title'>Résumé du cycle</div>";
+  html += "<div class='resume-grid'>";
+  dist.forEach(function(nbS, si) {
+    var axeId = selectedAxes[si];
+    var axeObj = AXES.filter(function(a) { return a.id === axeId; })[0];
+    html += "<div class='resume-card'>";
+    html += "<h4>Séquence " + (si + 1) + "</h4>";
+    html += "<p><strong>" + (axeObj ? axeObj.id : axeId) + "</strong> · " + nbS + " séance(s)</p>";
+    html += "<p style='font-size:12px;color:var(--c-muted);margin-top:4px;'>" + (axeObj ? axeObj.title : "") + "</p>";
+    html += "</div>";
+  });
+  html += "</div>";
+  html += "<div class='decision-box' style='margin-top:12px;'>";
+  html += "Ce cycle de <strong>" + nbSeances + " séances</strong> cible <strong>" + na + " axes prioritaires</strong>.<br>";
+  html += "Profil le plus concerné : <strong>" + dom + " — " + profDom + "</strong> (" + (dom === "A" ? nbA : (dom === "B" ? nbB : nbC)) + " élèves).<br>";
+  html += "Réévaluer après la séquence 2 avec une nouvelle collecte terrain.";
+  html += "</div></div>";
+
+  document.getElementById("planifZone").innerHTML = html;
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+
+function goStep(n) {
+  if (n === 2 && results.length === 0) { alert("Lancez d'abord l'analyse (Étape 1)."); return; }
+  if (n === 3 && selectedAxes.length < 3) { alert("Sélectionnez au moins 3 axes."); return; }
+  if (n === 4) { buildPlanif(); }
+  if (n >= 3) {
+    document.getElementById("stepBtn3").disabled = false;
+    document.getElementById("stepBtn3").classList.add("done");
+    updateSlider();
+  }
+  if (n >= 4) {
+    document.getElementById("stepBtn4").disabled = false;
+    document.getElementById("stepBtn4").classList.add("done");
+  }
+  currentStep = n;
+  document.querySelectorAll(".step-panel").forEach(function(p) { p.classList.remove("active"); });
+  document.getElementById("panel" + n).classList.add("active");
+  document.querySelectorAll(".step-btn").forEach(function(b, i) {
+    b.classList.remove("active");
+    if (i + 1 === n) b.classList.add("active");
+  });
+  window.scrollTo(0, 0);
+  saveState();
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════
+
+function exportCSV() {
+  if (!results.length) { alert("Aucune donnée à exporter."); return; }
+  var bom = "\uFEFF";
+  var header = "Rang,Prénom,Code OBS-01,OBS-01,Code OBS-02,OBS-02,Code OBS-03,OBS-03,Moyenne,/20,Profil global,Profil détaillé,Lacune 1,SA recommandée\n";
+  // FIX V_1.4 — Trier results par moyenne desc pour garantir un rang cohérent dans le CSV
+  var sorted = results.slice().sort(function(a, b) { return b.moy - a.moy; });
+  var rows = sorted.map(function(r, idx) {
+    var rang = idx + 1;
+    var codes = r.obs.map(function(v, i) {
+      var p = getProfile(v);
+      return OBS[i][p].code;
+    });
+    var l1 = r.lacunes && r.lacunes.length > 0
+      ? (OBS[r.lacunes[0].obs].id + " : " + r.lacunes[0].val.toFixed(1) + "/10")
+      : "Aucune";
+    return [
+      rang, r.prenom, codes[0], r.obs[0], codes[1], r.obs[1], codes[2], r.obs[2],
+      r.moy.toFixed(2), r.note20, r.global, r.profils.join("/"), l1, r.saReco
+    ].join(",");
+  }).join("\n");
+  var d = new Date();
+  var ds = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
+  var blob = new Blob([bom + header + rows], { type: "text/csv;charset=utf-8;" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "outil_v0_HAIES_DI-HAI_" + ds + ".csv";
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+// Drag & drop CSV
+var dz = document.getElementById("dropZone");
+dz.addEventListener("dragover", function(e) { e.preventDefault(); dz.classList.add("drag"); });
+dz.addEventListener("dragleave", function() { dz.classList.remove("drag"); });
+dz.addEventListener("drop", function(e) {
+  e.preventDefault(); dz.classList.remove("drag");
+  var f = e.dataTransfer.files[0];
+  if (f) { var r = new FileReader(); r.onload = function(ev) { parseCSV(ev.target.result); }; r.readAsText(f, "UTF-8"); }
+});
+
+// Init
+loadState();
+
+// Autosave on input changes in rowsContainer
+document.getElementById('rowsContainer').addEventListener('input', function() {
+  saveState();
+});
+
+updateSlider();
+
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  const icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+}
+</script>
+<script>
+  // Initialize static lucide icons on load
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+</script>
+
+</body>
+</html>
