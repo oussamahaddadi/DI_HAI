@@ -142,13 +142,12 @@
       background: var(--c-accent-light) !important;
       border-left-color: var(--c-step-active) !important;
     }
-    #themeToggleContainer {
+    #sidebarToolsContainer {
       border-left: none !important;
       border-top: 1px solid var(--c-border) !important;
-      padding-top: 16px !important;
+      padding-top: 12px !important;
       width: 100% !important;
       margin-top: auto !important;
-      justify-content: space-between !important;
     }
   }
 
@@ -304,9 +303,36 @@
   .alert-warn { background: var(--c-B); border: 1px solid var(--c-B-border); color: var(--c-B-text); }
   .alert-err { background: var(--c-A); border: 1px solid var(--c-A-border); color: var(--c-A-text); }
 
+    /* TUTORIAL SYSTEM */
+  .tuto-overlay { position: fixed; inset: 0; background: rgba(10,10,12,0.62); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+  .tuto-overlay.open { display: flex; }
+  .tuto-modal { background: var(--c-bg); border-radius: 14px; max-width: 880px; width: 100%; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.35); overflow: hidden; }
+  .tuto-head { background: var(--c-accent); color: #fff; padding: 16px 20px; display: flex; align-items: center; gap: 10px; }
+  .tuto-head h2 { font-size: 16px; font-weight: 700; flex: 1; }
+  .tuto-close { background: rgba(255,255,255,0.15); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .tuto-close:hover { background: rgba(255,255,255,0.3); }
+  .tuto-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .tuto-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0 6px; }
+  .tuto-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c-step-idle); cursor: pointer; border: none; padding: 0; transition: background 0.2s; }
+  .tuto-dot.active { background: var(--c-accent); width: 22px; border-radius: 5px; }
+  .tuto-slide { display: none; }
+  .tuto-slide.active { display: block; }
+  .tuto-img-wrap { border-radius: 10px; overflow: hidden; border: 1px solid var(--c-border); box-shadow: var(--shadow); margin-bottom: 16px; background: #fff; }
+  .tuto-img-wrap img { width: 100%; display: block; }
+  .tuto-step-label { display: inline-flex; align-items: center; gap: 6px; background: var(--c-accent-light); color: var(--c-accent); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; }
+  .tuto-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .tuto-text { font-size: 13px; color: var(--c-muted); line-height: 1.6; }
+  .tuto-text ul { margin: 8px 0 0 18px; }
+  .tuto-text li { margin-bottom: 4px; }
+  .tuto-foot { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid var(--c-border); background: var(--c-surface); }
+  .tuto-nav-btn { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 7px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--c-text); display: flex; align-items: center; gap: 6px; }
+  .tuto-nav-btn:hover { background: var(--c-accent-light); }
+  .tuto-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tuto-counter { font-size: 12px; color: var(--c-muted); }
+
   /* PRINT */
   @media print {
-    .steps-nav, .btn-row, .btn, .import-zone, .form-grid-header, .form-row:not(.print-show), .app-header span { display: none !important; }
+    .steps-nav, .btn-row, .btn, .import-zone, .form-grid-header, .form-row:not(.print-show), .app-header span, .tuto-overlay { display: none !important; }
     .step-panel { display: block !important; }
     body { background: #fff; }
     .card { box-shadow: none; border: 1px solid #ccc; }
@@ -317,6 +343,8 @@
     .axe-card-body { grid-template-columns: 1fr; }
     table { font-size: 12px; }
     td, th { padding: 5px 7px; }
+    .tuto-modal { max-height: 96vh; }
+    .tuto-body { padding: 14px; }
   }
 </style>
 </head>
@@ -345,11 +373,23 @@
         <span class="step-dot">4</span> Planification
       </button>
     </div>
-    <div class="flex items-center justify-between w-full p-2 md:p-4 md:border-t md:border-l-0 border-gray-300 dark:border-gray-700 md:mt-auto gap-2 border-t" id="themeToggleContainer">
-      <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Mode Sombre</span>
-      <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
-        <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i>
-      </button>
+    <div class="flex flex-col w-full border-t border-gray-300 dark:border-gray-700 md:mt-auto" id="sidebarToolsContainer">
+      <!-- Tutoriel -->
+      <div class="flex items-center justify-between p-2 md:p-4 hover:bg-gray-200/30 dark:hover:bg-gray-700/30 transition-colors cursor-pointer border-b border-gray-200 dark:border-gray-800 md:border-b-0" onclick="openTuto()">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <i data-lucide="circle-help" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i> Tutoriel
+        </span>
+        <button class="text-xs font-semibold text-blue-500 hover:text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded" onclick="event.stopPropagation();openTuto()">Ouvrir</button>
+      </div>
+      <!-- Mode Sombre -->
+      <div class="flex items-center justify-between p-2 md:p-4" id="themeToggleRow">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <i data-lucide="moon" id="themeIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i> Mode Sombre
+        </span>
+        <button id="themeToggle" class="p-1 px-2 rounded-md hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500" onclick="toggleTheme()" title="Basculer le thème">
+          <span class="text-xs font-semibold px-1 py-0.5 text-gray-600 dark:text-gray-300">Basculer</span>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -469,6 +509,161 @@
 
 </div><!-- /main -->
 </div><!-- /split interface wrapper -->
+
+<!-- TUTORIAL OVERLAY MODAL -->
+<div class="tuto-overlay" id="tutoOverlay">
+  <div class="tuto-modal">
+    <div class="tuto-head col-span-1">
+      <i data-lucide="graduation-cap" style="width:20px;height:20px;"></i>
+      <h2>Tutoriel — Comment utiliser l'aide à la décision</h2>
+      <button class="tuto-close" onclick="closeTuto()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    </div>
+    <div class="tuto-body">
+      <!-- SLIDE 1 (DIAGNOSTIC) -->
+      <div class="tuto-slide active">
+        <div class="tuto-img-wrap p-4 bg-gray-100 dark:bg-gray-900">
+          <div class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 font-sans shadow-sm">
+            <div class="text-xs uppercase font-bold text-gray-400 dark:text-gray-500 mb-2">Étape 1 : Saisie de votre classe ou import CSV</div>
+            <div class="space-y-2">
+              <div class="flex gap-2 items-center text-xs">
+                <span class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded block"></span>
+                <span class="w-8 h-4 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-350 text-center rounded block text-[10px] font-mono">3.0</span>
+                <span class="w-8 h-4 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-350 text-center rounded block text-[10px] font-mono">8.5</span>
+                <span class="w-8 h-3 bg-gray-200 dark:bg-gray-700 rounded block"></span>
+              </div>
+              <div class="flex gap-2 items-center text-xs">
+                <span class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded block"></span>
+                <span class="w-8 h-4 bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-350 text-center rounded block text-[10px] font-mono">5.5</span>
+                <span class="w-8 h-4 bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-350 text-center rounded block text-[10px] font-mono">6.0</span>
+                <span class="w-8 h-4 bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-350 text-center rounded block text-[10px] font-mono">7.0</span>
+              </div>
+            </div>
+            <div class="mt-3 flex justify-end">
+              <span class="px-2 py-1 text-[10px] bg-blue-600 text-white rounded font-medium flex items-center gap-1"><i data-lucide="play" class="w-3 h-3"></i> Analyser mes élèves</span>
+            </div>
+          </div>
+        </div>
+        <div class="tuto-step-label"><i data-lucide="activity" style="width:12px;height:12px;"></i> Étape 1 / 4</div>
+        <div class="tuto-title">Diagnostic de la classe</div>
+        <div class="tuto-text">
+          <p>Saisissez directement les observables pour chaque élève de votre classe de course de haies, ou imports un fichier CSV exporté.</p>
+          <ul>
+            <li><strong>Saisie directe :</strong> Modifiez les temps de course de haies, de plat et les types d'obstacles constatés en situation réelle.</li>
+            <li><strong>Importation CSV :</strong> Glissez-déposez ou cliquez sur la zone d'importation pour charger instantanément les profils d'élèves préalablement sauvegardés.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 (AXES) -->
+      <div class="tuto-slide">
+        <div class="tuto-img-wrap p-4 bg-gray-100 dark:bg-gray-900">
+          <div class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 font-sans shadow-sm">
+            <div class="text-xs uppercase font-bold text-gray-400 dark:text-gray-500 mb-2">Étape 2 : Choix des priorités pédagogiques</div>
+            <div class="space-y-2">
+              <div class="p-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded flex gap-2 items-center">
+                <i data-lucide="check-square" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                <span class="text-xs font-semibold text-blue-900 dark:text-blue-200">Impulsion &amp; Trajectoire</span>
+                <span class="ml-auto text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded">62%</span>
+              </div>
+              <div class="p-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded flex gap-2 items-center">
+                <i data-lucide="check-square" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                <span class="text-xs font-semibold text-blue-900 dark:text-blue-200">Rythme inter-obstacles</span>
+                <span class="ml-auto text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded">54%</span>
+              </div>
+              <div class="p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded flex gap-2 items-center">
+                <i data-lucide="square" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs text-gray-600 dark:text-gray-400">Régularité du cycle</span>
+                <span class="ml-auto text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-1.5 py-0.5 rounded">22%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tuto-step-label"><i data-lucide="target" style="width:12px;height:12px;"></i> Étape 2 / 4</div>
+        <div class="tuto-title">Définition des axes prioritaires</div>
+        <div class="tuto-text">
+          <p>L'algorithme détermine les pourcentages de réussite et d'échec pour votre classe et préconise des axes de travail prioritaires.</p>
+          <ul>
+            <li><strong>Algorithme intelligent :</strong> Suggère automatiquement les deux axes phares qui permettront de faire progresser le plus grand nombre d'élèves.</li>
+            <li><strong>Validation manuelle :</strong> Vous conservez un contrôle complet — cochez ou décochez les axes selon votre projet pédagogique d'ASH ou d'établissement.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SLIDE 3 (PARAMETRAGE) -->
+      <div class="tuto-slide">
+        <div class="tuto-img-wrap p-4 bg-gray-100 dark:bg-gray-900">
+          <div class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 font-sans shadow-sm">
+            <div class="text-xs uppercase font-bold text-gray-400 dark:text-gray-500 mb-2">Étape 3 : Paramétrage du cycle d'EPS</div>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <input type="range" class="w-full accent-blue-650" min="6" max="10" value="8" disabled>
+                <span class="font-bold text-blue-600 dark:text-blue-400 text-sm whitespace-nowrap">8 Séances</span>
+              </div>
+              <div class="border-t border-dashed border-gray-200 dark:border-gray-700 pt-2 space-y-1">
+                <div class="flex items-center gap-2 text-[11px]">
+                  <span class="bg-blue-600 text-white font-mono px-1 rounded">Séq 1</span>
+                  <span class="text-gray-600 dark:text-gray-300">3 séances (Impulsion)</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px]">
+                  <span class="bg-blue-600 text-white font-mono px-1 rounded">Séq 2</span>
+                  <span class="text-gray-600 dark:text-gray-300">5 séances (Rythme)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tuto-step-label"><i data-lucide="sliders" style="width:12px;height:12px;"></i> Étape 3 / 4</div>
+        <div class="tuto-title">Séquençage et paramétrage du cycle</div>
+        <div class="tuto-text">
+          <p>Configurez la durée totale de votre cycle d'enseignement d'EPS pour adapter les séances.</p>
+          <ul>
+            <li><strong>Slider dynamique :</strong> Ajustez le nombre de séances d'enseignement (de 6 à 10 séances) à l'aide de la jauge.</li>
+            <li><strong>Distribution temporelle :</strong> Visualisez la répartition automatique des séances de travail au sein de chacune de vos séquences de priorités pédagogiques sélectionnées à l'étape précédente.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SLIDE 4 (PLANIFICATION) -->
+      <div class="tuto-slide">
+        <div class="tuto-img-wrap p-4 bg-gray-100 dark:bg-gray-900">
+          <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 font-sans shadow-sm">
+            <div class="text-xs uppercase font-bold text-gray-400 dark:text-gray-500 mb-1">Étape 4 : Fiches de séances &amp; Groupes de niveau</div>
+            <div class="text-[10px] text-gray-400 dark:text-gray-500 mb-2">Séance Répartie (Exemple : Groupe A / B / C) :</div>
+            <div class="grid grid-cols-3 gap-2 text-[10px]">
+              <div class="p-2 border border-red-200 dark:border-red-900/60 bg-red-50/50 dark:bg-red-950/20 rounded">
+                <span class="font-bold text-red-800 dark:text-red-300">Groupe A</span>
+                <p class="text-gray-650 dark:text-gray-400 text-[9px] mt-0.5">Franchissement rasant</p>
+              </div>
+              <div class="p-2 border border-yellow-200 dark:border-yellow-900/60 bg-yellow-50/50 dark:bg-yellow-950/20 rounded">
+                <span class="font-bold text-yellow-800 dark:text-yellow-300">Groupe B</span>
+                <p class="text-gray-650 dark:text-gray-400 text-[9px] mt-0.5">Adaptation d'obstacles</p>
+              </div>
+              <div class="p-2 border border-green-200 dark:border-green-900/60 bg-green-50/50 dark:bg-green-950/20 rounded">
+                <span class="font-bold text-green-800 dark:text-green-300">Groupe C</span>
+                <p class="text-gray-650 dark:text-gray-400 text-[9px] mt-0.5">Liaisons en foulées</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tuto-step-label"><i data-lucide="calendar" style="width:12px;height:12px;"></i> Étape 4 / 4</div>
+        <div class="tuto-title">Planification finale &amp; Impression</div>
+        <div class="tuto-text">
+          <p>Accédez aux détails de chaque séance, avec des fiches individualisées pour chaque groupe de besoin d'élèves (A, B, C).</p>
+          <ul>
+            <li><strong>Fiches complètes :</strong> Consignes, critères de réussite et d'aménagement matériel, indicateurs d'action pédagogique clairs.</li>
+            <li><strong>Exportation et impression :</strong> Sauvegardez au format CSV, ou imprimez directement vos fiches de séance papier pour votre présence sur le terrain.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="tuto-dots" id="tutoDots"></div>
+    <div class="tuto-foot">
+      <button class="tuto-nav-btn" id="tutoPrev" onclick="tutoNav(-1)"><i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Précédent</button>
+      <span class="tuto-counter" id="tutoCounter">1 / 4</span>
+      <button class="tuto-nav-btn" id="tutoNext" onclick="tutoNav(1)">Suivant <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -1445,6 +1640,64 @@ function toggleTheme() {
     }
   }
 }
+
+// TUTORIAL ENGINE
+var tutoIndex = 0;
+var TUTO_TOTAL = 4;
+
+function buildTutoDots() {
+  var dots = document.getElementById("tutoDots");
+  var html = "";
+  for (var i = 0; i < TUTO_TOTAL; i++) {
+    html += "<button class='tuto-dot" + (i === tutoIndex ? " active" : "") + "' onclick='tutoGoTo(" + i + ")'></button>";
+  }
+  dots.innerHTML = html;
+}
+
+function tutoRender() {
+  document.querySelectorAll(".tuto-slide").forEach(function(s, i) {
+    s.classList.toggle("active", i === tutoIndex);
+  });
+  buildTutoDots();
+  document.getElementById("tutoCounter").textContent = (tutoIndex + 1) + " / " + TUTO_TOTAL;
+  document.getElementById("tutoPrev").disabled = tutoIndex === 0;
+  var nextBtn = document.getElementById("tutoNext");
+  if (tutoIndex === TUTO_TOTAL - 1) {
+    nextBtn.innerHTML = "Terminer <i data-lucide='check' style='width:14px;height:14px;'></i>";
+  } else {
+    nextBtn.innerHTML = "Suivant <i data-lucide='arrow-right' style='width:14px;height:14px;'></i>";
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function tutoNav(dir) {
+  if (dir === 1 && tutoIndex === TUTO_TOTAL - 1) { closeTuto(); return; }
+  tutoIndex = Math.min(TUTO_TOTAL - 1, Math.max(0, tutoIndex + dir));
+  tutoRender();
+}
+
+function tutoGoTo(i) { tutoIndex = i; tutoRender(); }
+
+function openTuto() {
+  tutoIndex = 0;
+  document.getElementById("tutoOverlay").classList.add("open");
+  tutoRender();
+}
+
+function closeTuto() {
+  document.getElementById("tutoOverlay").classList.remove("open");
+}
+
+document.getElementById("tutoOverlay").addEventListener("click", function(e) {
+  if (e.target === this) closeTuto();
+});
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") closeTuto();
+  if (document.getElementById("tutoOverlay").classList.contains("open")) {
+    if (e.key === "ArrowRight") tutoNav(1);
+    if (e.key === "ArrowLeft") tutoNav(-1);
+  }
+});
 </script>
 <script>
   // Initialize static lucide icons on load
