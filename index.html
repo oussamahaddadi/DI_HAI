@@ -151,6 +151,11 @@
     }
   }
 
+  /* COLLAPSIBLE SIDEBAR */
+  .steps-nav.collapsed {
+    display: none !important;
+  }
+
   /* MAIN */
   .main { padding: 16px; max-width: 1100px; margin: 0 auto; }
   .step-panel { display: none; }
@@ -164,13 +169,13 @@
   .form-grid-header, .form-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 40px; gap: 16px; align-items: center; }
   .form-grid-header { font-size: 11px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 8px; border-bottom: 1px solid rgba(226, 223, 216, 0.7); margin-bottom: 12px; }
   #rowsContainer { display: flex; flex-direction: column; gap: 12px; }
-  .form-row input[type="text"], .form-row input[type="number"] { border: 1px solid rgba(226, 223, 216, 0.8); border-radius: 6px; padding: 8px 10px; font-size: 13px; width: 100%; height: 36px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); color: var(--c-text); }
-  html.dark .form-row input[type="text"], html.dark .form-row input[type="number"] { background: rgba(30, 30, 30, 0.6); border-color: rgba(80, 80, 75, 0.8); box-shadow: inset 0 1px 4px rgba(0,0,0,0.2); }
-  .form-row input[type="number"] { text-align: center; }
-  .form-row input:focus { outline: none; border-color: var(--c-accent); background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15); }
-  html.dark .form-row input:focus { background: rgba(45, 45, 45, 0.95); box-shadow: 0 0 0 3px rgba(75, 162, 255, 0.3); }
-  .form-row input.err { border-color: #E05252; background: rgba(255, 245, 245, 0.8); }
-  html.dark .form-row input.err { background: rgba(80, 20, 20, 0.6); }
+  .form-row input[type="text"], .form-row select { border: 1px solid rgba(226, 223, 216, 0.8); border-radius: 6px; padding: 8px 10px; font-size: 13px; width: 100%; height: 36px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); color: var(--c-text); }
+  html.dark .form-row input[type="text"], html.dark .form-row select { background: rgba(30, 30, 30, 0.6); border-color: rgba(80, 80, 75, 0.8); box-shadow: inset 0 1px 4px rgba(0,0,0,0.2); }
+  .form-row select { text-align: center; text-align-last: center; cursor: pointer; }
+  .form-row input:focus, .form-row select:focus { outline: none; border-color: var(--c-accent); background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15); }
+  html.dark .form-row input:focus, html.dark .form-row select:focus { background: rgba(45, 45, 45, 0.95); box-shadow: 0 0 0 3px rgba(75, 162, 255, 0.3); }
+  .form-row input.err, .form-row select.err { border-color: #E05252; background: rgba(255, 245, 245, 0.8); }
+  html.dark .form-row input.err, html.dark .form-row select.err { background: rgba(80, 20, 20, 0.6); }
   .btn-del { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(226, 223, 216, 0.8); border-radius: 6px; color: var(--c-muted); cursor: pointer; font-size: 16px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: all 0.2s; }
   html.dark .btn-del { background: rgba(30, 30, 30, 0.5); border-color: rgba(80, 80, 75, 0.8); }
   .btn-del:hover { background: rgba(252, 235, 235, 0.9); border-color: var(--c-A-border); color: var(--c-A-text); transform: scale(1.05); }
@@ -351,8 +356,12 @@
 <body>
 
 <header class="app-header flex flex-col md:flex-row md:items-center justify-between gap-3">
-  <div>
-    <h1>Outil EPS — Course de Haies · DI-HAI</h1>
+  <div class="flex items-center gap-3">
+    <button id="sidebarToggle" class="px-2.5 py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 active:bg-white/30 rounded border border-white/20 transition-all text-white flex items-center gap-1.5 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer" onclick="toggleSidebar()" title="Afficher/Masquer le panneau latéral">
+      <i data-lucide="menu" id="sidebarToggleIcon" class="w-4 h-4"></i>
+      <span id="sidebarToggleText">Masquer le menu</span>
+    </button>
+    <h1 style="font-size: 16px; font-weight: 600;">Outil EPS — Course de Haies · DI-HAI</h1>
   </div>
   <span class="md:ml-auto">ADP 2026 · CRMEF Inezgane · BOUARGANE &nbsp;|&nbsp; Niveau 2 · 10 séances</span>
 </header>
@@ -380,6 +389,16 @@
           <i data-lucide="circle-help" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i> Tutoriel
         </span>
         <button class="text-xs font-semibold text-blue-500 hover:text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded" onclick="event.stopPropagation();openTuto()">Ouvrir</button>
+      </div>
+      <!-- Charger Liste Elèves -->
+      <div class="flex items-center justify-between p-2 md:p-4 hover:bg-gray-200/30 dark:hover:bg-gray-700/30 transition-colors cursor-pointer border-b border-gray-200 dark:border-gray-800 md:border-b-0" onclick="document.getElementById('namesFile').click()">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-gray-700 dark:text-gray-200"></i> Noms d'élèves
+        </span>
+        <button class="text-xs font-semibold text-blue-500 hover:text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded flex items-center gap-1" onclick="event.stopPropagation();document.getElementById('namesFile').click()">
+          <i data-lucide="upload" style="width:11px; height:11px;"></i> Charger
+        </button>
+        <input type="file" id="namesFile" accept=".txt,.csv" style="display:none;" onchange="importStudentNames(this)">
       </div>
       <!-- Mode Sombre -->
       <div class="flex items-center justify-between p-2 md:p-4" id="themeToggleRow">
@@ -438,15 +457,15 @@
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
       <div style="background:var(--c-A);border-radius:6px;padding:12px;border:1px solid var(--c-A-border);">
         <strong style="color:var(--c-A-text);">Degré A — Lacune</strong>
-        <div style="font-size:12px;margin-top:4px;color:var(--c-A-text);">Score &lt; 4 /10<br>P− · CG− · RI−<br>Coureur sauteur</div>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-A-text);font-weight:600;">Coureur sauteur</div>
       </div>
       <div style="background:var(--c-B);border-radius:6px;padding:12px;border:1px solid var(--c-B-border);">
         <strong style="color:var(--c-B-text);">Degré B — Construction</strong>
-        <div style="font-size:12px;margin-top:4px;color:var(--c-B-text);">Score 4–7 /10<br>P~ · CG~ · RI~<br>Coureur coordonné</div>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-B-text);font-weight:600;">Coureur coordonné</div>
       </div>
       <div style="background:var(--c-C);border-radius:6px;padding:12px;border:1px solid var(--c-C-border);">
         <strong style="color:var(--c-C-text);">Degré C — Maîtrisé</strong>
-        <div style="font-size:12px;margin-top:4px;color:var(--c-C-text);">Score &gt; 7 /10<br>P+ · CG+ · RI+<br>Coureur accélérateur</div>
+        <div style="font-size:12px;margin-top:4px;color:var(--c-C-text);font-weight:600;">Coureur accélérateur</div>
       </div>
     </div>
   </div>
@@ -836,11 +855,13 @@ function saveState() {
       data.push({ pr: pr, o1: o1, o2: o2, o3: o3 });
     }
   });
+  var isCollapsed = document.getElementById("stepsNav").classList.contains("collapsed");
   var state = {
     students: data,
     selectedAxes: selectedAxes,
     nbSeances: nbSeances,
-    currentStep: currentStep
+    currentStep: currentStep,
+    sidebarCollapsed: isCollapsed
   };
   localStorage.setItem("di_hai_data", JSON.stringify(state));
 }
@@ -860,6 +881,24 @@ function loadState() {
       selectedAxes = state.selectedAxes || [];
       nbSeances = state.nbSeances || 10;
       document.getElementById("sliderSeances").value = nbSeances;
+      
+      // Sidebar Collapse Restore
+      var nav = document.getElementById("stepsNav");
+      if (nav) {
+        if (state.sidebarCollapsed) {
+          nav.classList.add("collapsed");
+          var btnText = document.getElementById("sidebarToggleText");
+          if (btnText) btnText.textContent = "Afficher le menu";
+          var iconEl = document.getElementById("sidebarToggleIcon");
+          if (iconEl) iconEl.setAttribute("data-lucide", "menu");
+        } else {
+          nav.classList.remove("collapsed");
+          var btnText = document.getElementById("sidebarToggleText");
+          if (btnText) btnText.textContent = "Masquer le menu";
+          var iconEl = document.getElementById("sidebarToggleIcon");
+          if (iconEl) iconEl.setAttribute("data-lucide", "menu");
+        }
+      }
       
       if (state.students && state.students.length > 0) {
         var data = readRowsSilent();
@@ -901,11 +940,12 @@ function readRowsSilent() {
   rows.forEach(function(r) {
     var pr = r.querySelector(".pr").value.trim();
     if (!pr) return;
-    var o1 = parseFloat(r.querySelector(".o1").value);
-    var o2 = parseFloat(r.querySelector(".o2").value);
-    var o3 = parseFloat(r.querySelector(".o3").value);
-    if (!isNaN(o1) && !isNaN(o2) && !isNaN(o3)) {
-      data.push({ prenom: pr, obs: [o1, o2, o3] });
+    var o1Val = r.querySelector(".o1").value.trim();
+    var o2Val = r.querySelector(".o2").value.trim();
+    var o3Val = r.querySelector(".o3").value.trim();
+    if (o1Val && o2Val && o3Val) {
+      var scoreMap = { "A": 3, "B": 6, "C": 9 };
+      data.push({ prenom: pr, obs: [scoreMap[o1Val], scoreMap[o2Val], scoreMap[o3Val]] });
     }
   });
   return data;
@@ -1036,11 +1076,48 @@ function addRowWithData(d) {
   var div = document.createElement("div");
   div.className = "form-row";
   div.id = "row_" + id;
+
+  var o1Val = d.o1 ? d.o1.toString().trim().toUpperCase() : "";
+  var o2Val = d.o2 ? d.o2.toString().trim().toUpperCase() : "";
+  var o3Val = d.o3 ? d.o3.toString().trim().toUpperCase() : "";
+
+  function cleanVal(v) {
+    if (v === "A" || v === "B" || v === "C") return v;
+    var n = parseFloat(v);
+    if (!isNaN(n)) {
+      if (n < 4) return "A";
+      if (n <= 7) return "B";
+      return "C";
+    }
+    if (v.indexOf("-") !== -1 || v.indexOf("−") !== -1) return "A";
+    if (v.indexOf("~") !== -1) return "B";
+    if (v.indexOf("+") !== -1) return "C";
+    return "";
+  }
+  o1Val = cleanVal(o1Val);
+  o2Val = cleanVal(o2Val);
+  o3Val = cleanVal(o3Val);
+
   div.innerHTML =
     "<input type='text' placeholder='Prénom' class='pr' value='" + escHtml(d.pr||"") + "'>" +
-    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o1' value='" + escHtml(d.o1||"") + "'>" +
-    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o2' value='" + escHtml(d.o2||"") + "'>" +
-    "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o3' value='" + escHtml(d.o3||"") + "'>" +
+    "<select class='o1'>" +
+      "<option value=''>- OBS-01 -</option>" +
+      "<option value='A'" + (o1Val === "A" ? " selected" : "") + ">A</option>" +
+      "<option value='B'" + (o1Val === "B" ? " selected" : "") + ">B</option>" +
+      "<option value='C'" + (o1Val === "C" ? " selected" : "") + ">C</option>" +
+    "</select>" +
+    "<select class='o2'>" +
+      "<option value=''>- OBS-02 -</option>" +
+      "<option value='A'" + (o2Val === "A" ? " selected" : "") + ">A</option>" +
+      "<option value='B'" + (o2Val === "B" ? " selected" : "") + ">B</option>" +
+      "<option value='C'" + (o2Val === "C" ? " selected" : "") + ">C</option>" +
+    "</select>" +
+    "<select class='o3'>" +
+      "<option value=''>- OBS-03 -</option>" +
+      "<option value='A'" + (o3Val === "A" ? " selected" : "") + ">A</option>" +
+      "<option value='B'" + (o3Val === "B" ? " selected" : "") + ">B</option>" +
+      "<option value='C'" + (o3Val === "C" ? " selected" : "") + ">C</option>" +
+    "</select>" +
     "<button class='btn-del' onclick='delRow(\"" + id + "\")'>×</button>";
   c.appendChild(div);
 }
@@ -1056,36 +1133,37 @@ function delRow(id) {
 }
 
 function readRows() {
-  // FIX V_1.2 — Valider chaque ligne : prénom obligatoire + 3 valeurs numériques [0-10]
+  // FIX V_1.2 — Valider chaque ligne : prénom obligatoire + 3 valeurs de degré
   var data = [];
   var hasError = false;
   var rows = document.querySelectorAll("#rowsContainer .form-row");
   rows.forEach(function(r) {
     var prInput = r.querySelector(".pr");
-    var o1Input = r.querySelector(".o1");
-    var o2Input = r.querySelector(".o2");
-    var o3Input = r.querySelector(".o3");
+    var o1Select = r.querySelector(".o1");
+    var o2Select = r.querySelector(".o2");
+    var o3Select = r.querySelector(".o3");
     var pr = prInput.value.trim();
     if (!pr) return; // ligne vide ignorée silencieusement
-    var vals = [o1Input, o2Input, o3Input];
+    var selects = [o1Select, o2Select, o3Select];
     var obs = [];
     var rowErr = false;
-    vals.forEach(function(inp) {
-      inp.classList.remove("err");
-      var v = parseFloat(inp.value);
-      if (inp.value === "" || isNaN(v) || v < 0 || v > 10) {
-        inp.classList.add("err");
+    selects.forEach(function(sel) {
+      sel.classList.remove("err");
+      var vVal = sel.value.trim();
+      if (vVal === "") {
+        sel.classList.add("err");
         rowErr = true;
         hasError = true;
       } else {
-        obs.push(v);
+        var scoreMap = { "A": 3, "B": 6, "C": 9 };
+        obs.push(scoreMap[vVal]);
       }
     });
     if (!rowErr) data.push({ prenom: pr, obs: obs });
   });
   if (hasError) {
     document.getElementById("resultsZone").innerHTML =
-      "<div class='alert alert-err'>⚠ Certains champs sont vides ou hors plage (0–10). Corrigez les cases en rouge avant d'analyser.</div>";
+      "<div class='alert alert-err'>⚠ Certains observables ne sont pas sélectionnés. Sélectionnez A, B ou C pour les cases rouges avant d'analyser.</div>";
     return [];
   }
   return data;
@@ -1098,6 +1176,113 @@ function codeToScore(code) {
     if (OBS[i].C.code === code) return OBS[i].C.score;
   }
   return null;
+}
+
+// Import Student Names (TXT or CSV)
+function importStudentNames(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    var lines = text.split(/\r?\n/);
+    var names = [];
+    
+    // Check if CSV by detecting common separators on the first non-empty line
+    var isCsv = false;
+    var firstLine = "";
+    for (var l = 0; l < lines.length; l++) {
+      if (lines[l].trim()) {
+        firstLine = lines[l];
+        break;
+      }
+    }
+    if (firstLine.indexOf(",") !== -1 || firstLine.indexOf(";") !== -1 || firstLine.indexOf("\t") !== -1) {
+      isCsv = true;
+    }
+    
+    if (isCsv) {
+      // Find separator
+      var sep = ",";
+      if (firstLine.indexOf(";") !== -1) sep = ";";
+      else if (firstLine.indexOf("\t") !== -1) sep = "\t";
+      
+      // Look for a heading row in the first few lines
+      var headerIdx = -1;
+      var nameColIdx = 0; // Default to first column
+      
+      for (var i = 0; i < Math.min(5, lines.length); i++) {
+        var cols = lines[i].split(sep);
+        for (var j = 0; j < cols.length; j++) {
+          var cl = cols[j].trim().toLowerCase().replace(/^["']|["']$/g, "");
+          if (cl === "prenom" || cl === "nom_eleve" || cl === "nom" || cl === "name" || cl === "eleve" || cl === "élève" || cl === "étudiant" || cl === "etudiant" || cl === "eleves" || cl === "élèves") {
+            headerIdx = i;
+            nameColIdx = j;
+            break;
+          }
+        }
+        if (headerIdx !== -1) break;
+      }
+      
+      var startRow = 0;
+      if (headerIdx !== -1) {
+        startRow = headerIdx + 1;
+      }
+      
+      for (var k = startRow; k < lines.length; k++) {
+        var line = lines[k].trim();
+        if (!line) continue;
+        var parts = line.split(sep);
+        if (nameColIdx < parts.length) {
+          var name = parts[nameColIdx].trim().replace(/^["']|["']$/g, "");
+          // Check if it's a number (ID column) or empty, skip if empty
+          if (name && isNaN(name)) {
+            names.push(name);
+          } else if (name && !isNaN(name) && parts.length > 1) {
+            // Find first text column
+            for (var col = 0; col < parts.length; col++) {
+              var val = parts[col].trim().replace(/^["']|["']$/g, "");
+              if (val && isNaN(val)) {
+                names.push(val);
+                break;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // Plain TXT: 1 name per line
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+        var cl = line.toLowerCase();
+        if (cl === "prenom" || cl === "nom" || cl === "nom_eleve" || cl === "name" || cl === "eleve" || cl === "élève" || cl === "noms" || cl === "élèves" || cl === "eleves") {
+          continue;
+        }
+        names.push(line);
+      }
+    }
+    
+    // Populate the grid
+    if (names.length > 0) {
+      var c = document.getElementById("rowsContainer");
+      c.innerHTML = "";
+      names.forEach(function(name) {
+        addRowWithData({ pr: name, o1: "", o2: "", o3: "" });
+      });
+      saveState();
+      
+      // Output logs in page to notify success elegantly
+      var logZone = document.getElementById("importLog");
+      if (logZone) {
+        logZone.innerHTML = "<div class='alert alert-info'>🎉 <strong>" + names.length + "</strong> noms d'élèves importés automatiquement dans la grille !</div>";
+        // Scroll to container top to view imported list
+        c.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+  reader.readAsText(file, "UTF-8");
+  input.value = ""; // Clear file selector
 }
 
 // Import CSV
@@ -1159,18 +1344,8 @@ function parseCSV(text) {
     var v1 = getVal(parts, o1Idx);
     var v2 = getVal(parts, o2Idx);
     var v3 = getVal(parts, o3Idx);
-    // Ajouter dans le formulaire
-    var id = Date.now() + Math.random();
-    var div = document.createElement("div");
-    div.className = "form-row";
-    div.id = "row_" + id;
-    div.innerHTML =
-      "<input type='text' placeholder='Prénom' class='pr' value='" + escHtml(pr) + "'>" +
-      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o1' value='" + v1 + "'>" +
-      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o2' value='" + v2 + "'>" +
-      "<input type='number' min='0' max='10' step='0.5' placeholder='0–10' class='o3' value='" + v3 + "'>" +
-      "<button class='btn-del' onclick='delRow(\"" + id + "\")'>×</button>";
-    c2.appendChild(div);
+    // Ajouter dans le formulaire en utilisant notre fonction centralisée
+    addRowWithData({ pr: pr, o1: v1, o2: v2, o3: v3 });
     imported++;
   }
   document.getElementById("importLog").innerHTML =
@@ -1180,12 +1355,20 @@ function parseCSV(text) {
 function getVal(parts, idx) {
   if (idx === -1 || idx >= parts.length) return "";
   var v = parts[idx].trim().replace(/^"|"$/g, "");
+  var vu = v.toUpperCase();
+  if (vu === "A" || vu === "B" || vu === "C") return vu;
   var s = codeToScore(v);
-  if (s !== null) return s;
+  if (s !== null) {
+    if (s === 3) return "A";
+    if (s === 6) return "B";
+    if (s === 9) return "C";
+  }
   var n = parseFloat(v);
-  if (!isNaN(n)) return n;
-  var mp = { "A": 3, "B": 6, "C": 9 };
-  if (mp[v.toUpperCase()] !== undefined) return mp[v.toUpperCase()];
+  if (!isNaN(n)) {
+    if (n < 4) return "A";
+    if (n <= 7) return "B";
+    return "C";
+  }
   return "";
 }
 
@@ -1306,7 +1489,7 @@ function renderResults() {
     r.obs.forEach(function(v, i) { 
       var p = getProfile(v);
       html += "<div style='display:flex; flex-direction:column; align-items:center;' title='OBS-0" + (i+1) + "'>";
-      html += "<span class='badge badge-" + p + "' style='min-width:34px; text-align:center; padding:4px 0;'>" + v.toFixed(1) + "</span>";
+      html += "<span class='badge badge-" + p + "' style='min-width:34px; text-align:center; padding:4px 0;'>" + p + "</span>";
       html += "</div>";
     });
     html += "  </div>";
@@ -1315,7 +1498,7 @@ function renderResults() {
     // Average
     html += "<div style='padding: 16px; flex: 0 0 110px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-right:1px solid var(--c-border);'>";
     html += "  <div style='font-size:11px; text-transform:uppercase; font-weight:700; letter-spacing: 0.05em; color:var(--c-muted); margin-bottom:4px;'>Moyenne</div>";
-    html += "  <div style='font-size: 22px; font-weight:800; color:var(--c-accent); font-family:\"JetBrains Mono\", monospace; line-height:1;'>" + r.moy.toFixed(1) + "<span style='font-size:13px; font-weight:600; opacity:0.5;'>/10</span></div>";
+    html += "  <div style='font-size: 22px; font-weight:800; color:var(--c-accent); font-family:\"JetBrains Mono\", monospace; line-height:1;'>" + r.global + "</div>";
     html += "  <div style='font-size:13px; color:var(--c-muted); margin-top:4px; font-weight:600;'>" + r.note20 + "/20</div>";
     html += "</div>";
     
@@ -1325,7 +1508,7 @@ function renderResults() {
     
     var lacStr = r.lacunes.length > 0
       ? r.lacunes.map(function(l, i) { 
-          return "<div style='margin-bottom:6px; font-size: 12px; display:flex; align-items:flex-start; gap:6px;'><i data-lucide=\"alert-circle\" style=\"width:14px;height:14px;color:var(--c-A-text); flex-shrink:0; margin-top:2px;\"></i> <div><strong style='color:var(--c-A-text)'>L" + (i + 1) + "</strong> <span style='opacity:0.5'>—</span> " + OBS[l.obs].id + " : <strong>" + l.val.toFixed(1) + "</strong></div></div>"; 
+          return "<div style='margin-bottom:6px; font-size: 12px; display:flex; align-items:flex-start; gap:6px;'><i data-lucide=\"alert-circle\" style=\"width:14px;height:14px;color:var(--c-A-text); flex-shrink:0; margin-top:2px;\"></i> <div><strong style='color:var(--c-A-text)'>L" + (i + 1) + "</strong> <span style='opacity:0.5'>—</span> " + OBS[l.obs].id + " : <strong>" + getProfile(l.val) + " — " + profileLabel(getProfile(l.val)) + "</strong></div></div>"; 
         }).join("")
       : "<div style='color:var(--c-muted); font-style:italic; font-size: 12px; display:flex; align-items:center; gap:6px;'><i data-lucide=\"check-circle-2\" style=\"width:14px;height:14px;color:var(--c-step-done);\"></i> Aucune lacune fondamentale</div>";
       
@@ -1584,12 +1767,15 @@ function exportCSV() {
       var p = getProfile(v);
       return OBS[i][p].code;
     });
+    var grades = r.obs.map(function(v) {
+      return getProfile(v);
+    });
     var l1 = r.lacunes && r.lacunes.length > 0
-      ? (OBS[r.lacunes[0].obs].id + " : " + r.lacunes[0].val.toFixed(1) + "/10")
+      ? (OBS[r.lacunes[0].obs].id + " : " + getProfile(r.lacunes[0].val))
       : "Aucune";
     return [
-      rang, r.prenom, codes[0], r.obs[0], codes[1], r.obs[1], codes[2], r.obs[2],
-      r.moy.toFixed(2), r.note20, r.global, r.profils.join("/"), l1, r.saReco
+      rang, r.prenom, codes[0], grades[0], codes[1], grades[1], codes[2], grades[2],
+      r.global, r.note20, r.global, r.profils.join("/"), l1, r.saReco
     ].join(",");
   }).join("\n");
   var d = new Date();
@@ -1639,6 +1825,24 @@ function toggleTheme() {
       window.lucide.createIcons();
     }
   }
+}
+
+function toggleSidebar() {
+  var nav = document.getElementById("stepsNav");
+  if (!nav) return;
+  var isCollapsed = nav.classList.toggle("collapsed");
+  var btnText = document.getElementById("sidebarToggleText");
+  var iconEl = document.getElementById("sidebarToggleIcon");
+  if (btnText) {
+    btnText.textContent = isCollapsed ? "Afficher le menu" : "Masquer le menu";
+  }
+  if (iconEl) {
+    iconEl.setAttribute("data-lucide", "menu");
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+  saveState();
 }
 
 // TUTORIAL ENGINE
